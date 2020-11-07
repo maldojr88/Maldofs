@@ -8,6 +8,7 @@ Personal Java learning project inspired by [Jimfs](https://github.com/google/jim
 Tools 
 ---------
 
+- Java 14
 - Google Java Code Style
 - Error Prone 
 - SonarLint
