@@ -5,9 +5,10 @@ Overview
 --------
 Personal Java learning project inspired by [Jimfs](https://github.com/google/jimfs) 
 
-Tools 
+Tools to Learn
 ---------
 
+- GitHub
 - Java 14
 - Google Java Code Style
 - Error Prone 
@@ -15,7 +16,7 @@ Tools
 - Java Flight Recorder (when ready)
 - Microbenchmarking (when ready)
 
-Libraries
+Libraries to Learn
 ---------
 - Guava
 - Truth
