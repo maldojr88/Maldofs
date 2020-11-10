@@ -11,11 +11,6 @@ public class MetaData {
   private LocalDateTime lastModified;
   /* add permissions (owner, group etc) in the future */
 
-  private String name;
-  Path direcotoryPath;
-  Path parentDir;
+  private Path path;
 
-  public Path getAbsolutPath(){
-    return direcotoryPath;
-  }
 }
