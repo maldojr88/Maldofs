@@ -1,5 +1,7 @@
 package client;
 
+import core.MaldoFileSystem;
+
 /**
  * Static factory methods for creating MaldoFS
  */
