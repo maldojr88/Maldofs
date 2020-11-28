@@ -1,6 +1,7 @@
 package core;
 
 import file.Directory;
+import file.DirectoryRegistry;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
@@ -62,7 +63,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
-    Directory newDir = new Directory(dir);
+    Directory newDir = DirectoryRegistry.getDirectoryCreateIfNew(dir);
   }
 
   @Override

@@ -6,48 +6,77 @@ import core.MaldoFileSystem;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MaldoPath implements Path {
 
-  private final FileSystem malodFs;
+  private final FileSystem maldoFs;
   private final boolean isDir;
-  private final boolean isAbsolute;
   private boolean isRoot;
-  private final String inputPath;
+  private final String canonical;
   private List<String> splits;
+  private List<Path> pathChain = new ArrayList<>();
 
-  public MaldoPath(FileSystem fs, String inputPath){
-    checkArgument(fs.getClass() == MaldoFileSystem.class);
-    this.inputPath = inputPath;
-    this.isDir = inputPath.endsWith("/");
-    this.isAbsolute = inputPath.startsWith("/");
-    validate(inputPath);
-    this.malodFs = fs;
+   MaldoPath(FileSystem fs, String canonical){
+    validate(fs, canonical);
+    this.canonical = canonical;
+    this.isDir = canonical.endsWith("/");
+    this.maldoFs = fs;
+    constructPathChain();
   }
+
+  /* MaldoPath specific methods/functions */
+
+  public static MaldoPath convert(Path path){
+    Objects.requireNonNull(path);
+    validateFileSystem(path.getFileSystem());
+    checkArgument(path instanceof MaldoPath, "Path must be a MaldoPath");
+    return (MaldoPath) path;
+  }
+
+  String getCanonical() {
+    return canonical;
+  }
+
+  /**
+   * "/ab/cd/ef/" -> {"/ab/", "/ab/cd/", "/ab/cd/ef/"}
+   */
+  public List<Path> getPathChain(){
+    return pathChain;
+  }
+
+  public boolean isValidDirectory(){
+    return isDir;
+  }
+
+  public boolean isRoot() {
+    return isRoot;
+  }
+
+  /* Path specific methods/functions */
 
   @Override
   public FileSystem getFileSystem() {
-    return malodFs;
+    return maldoFs;
   }
 
   @Override
   public boolean isAbsolute() {
-    return isAbsolute;
+    return true;
   }
 
   @Override
   public Path getRoot() {
-    return new MaldoPath(malodFs, "/");
+    return new MaldoPath(maldoFs, "/");
   }
 
   @Override
@@ -56,18 +85,17 @@ public class MaldoPath implements Path {
       return null;
     }
 
-    return new MaldoPath(this.malodFs, splits.get(splits.size()-1));
+    return new MaldoPath(this.maldoFs, splits.get(splits.size()-1));
   }
 
   @Override
   public Path getParent() {
-    if (!isAbsolute || isRoot) {
+    if (isRoot) {
       return null;
     }
 
-    return new MaldoPath(this.malodFs,
-        String.join("/", splits.stream().limit(splits.size()-1)
-            .collect(Collectors.toList())));
+    return pathChain.get(pathChain.size()-1);
+
   }
 
   @Override
@@ -77,22 +105,22 @@ public class MaldoPath implements Path {
 
   @Override
   public Path getName(int index) {
-    return new MaldoPath(this.malodFs, splits.get(index));
+    return new MaldoPath(this.maldoFs, splits.get(index));
   }
 
   @Override
   public Path subpath(int beginIndex, int endIndex) {
-    return new MaldoPath(this.malodFs, String.join("/", splits.subList(beginIndex,endIndex)));
+    return new MaldoPath(this.maldoFs, String.join("/", splits.subList(beginIndex,endIndex)));
   }
 
   @Override
   public boolean startsWith(Path other) {
-    return beginsWith(validatePath(other));
+    return beginsWith(convert(other));
   }
 
   @Override
   public boolean endsWith(Path other) {
-    return finishesWith(validatePath(other));
+    return finishesWith(convert(other));
   }
 
   @Override
@@ -136,8 +164,50 @@ public class MaldoPath implements Path {
     return 0;
   }
 
-  public List<String> getSplits(){
+  private List<String> getSplits(){
     return splits;
+  }
+
+  private void validate(FileSystem fs, String inputPath){
+    validateFileSystem(fs);
+    validateInputPath(inputPath);
+  }
+
+  private void validateInputPath(String inputPath) {
+    checkArgument(!inputPath.isBlank() && !inputPath.isEmpty(),
+        "InputPath must not be empty or blank");
+    checkArgument(inputPath.startsWith("/"), "MaldoPaths must be absolute");
+    isRoot = inputPath.length() == 1 && inputPath.equals("/");
+
+    if(isRoot){
+      splits = new ArrayList<>();
+      return;
+    }
+
+    List<String> tempSplit = List.of(inputPath.split("/"));
+    splits = tempSplit.subList(1, tempSplit.size());//first one will always be empty
+
+    boolean valid = splits.stream().noneMatch(x -> x.equals(""));
+    checkArgument(valid, "Invalid Path{" + inputPath + "}");
+  }
+
+  private static void validateFileSystem(FileSystem fs){
+    checkArgument(fs.getClass().equals(MaldoFileSystem.class),
+        "Path filesystem must be MaldoFileSystem");
+  }
+
+  private void constructPathChain() {
+    if (!isRoot) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("/");
+      pathChain = new ArrayList<>();
+      pathChain.add(MaldoFileSystem.getRootDir());
+      for (String split : splits.stream().limit(splits.size() - 1).collect(Collectors.toList())) {
+        sb.append(split).append("/");
+        pathChain.add(PathRegistry.createPath(maldoFs, sb.toString()));
+      }
+    }
+    //pathChain.add(this);
   }
 
   private boolean finishesWith(MaldoPath path) {
@@ -152,31 +222,5 @@ public class MaldoPath implements Path {
       return false;
     }
     return path.getSplits().equals(splits.subList(0, path.getSplits().size()));
-  }
-
-  private MaldoPath validatePath(Path path){
-    Objects.requireNonNull(path);
-    if(!path.getFileSystem().equals(malodFs) || !(path instanceof MaldoPath)){
-      throw new IllegalArgumentException("Path should be a MaldoPath");
-    }
-    return (MaldoPath) path;
-  }
-
-  private void validate(String inputPath) {
-    boolean invalid = false;
-    this.splits = List.of(inputPath.split("/"));
-    this.isRoot = inputPath.length() == 1 && inputPath.equals("/");
-
-    for(int i=0; i < splits.size(); i++){
-      String current = splits.get(i);
-      if(current.equals("") && i != 0){
-        invalid = true;
-        break;
-      }
-    }
-
-    if(invalid){
-      throw new IllegalArgumentException("Invalid Path{" + inputPath + "}");
-    }
   }
 }

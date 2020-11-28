@@ -1,6 +1,7 @@
 package core;
 
 import file.Directory;
+import file.DirectoryRegistry;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
@@ -10,13 +11,26 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
+import path.PathRegistry;
 
 /**
  * Core functionality of the filesystem bringing everything together
  */
 public class MaldoFileSystem extends FileSystem {
-  Directory rootDir;
+  private static Directory rootDir;
   FileSystemProvider provider = new MaldoFileSystemProvider(this);
+
+  public MaldoFileSystem(){
+    rootDir = DirectoryRegistry.getDirectoryCreateIfNew(PathRegistry.createPath(this, "/"));
+  }
+
+  public static Path getRootDir() {
+    return rootDir.getPath();
+  }
+
+  public Path getPath(String path){
+    return PathRegistry.createPath(this, path);
+  }
 
   @Override
   public FileSystemProvider provider() {
