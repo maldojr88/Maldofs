@@ -16,10 +16,11 @@ import java.util.Set;
  */
 public class MaldoFileSystem extends FileSystem {
   Directory rootDir;
+  FileSystemProvider provider = new MaldoFileSystemProvider(this);
 
   @Override
   public FileSystemProvider provider() {
-    return null;
+    return provider;
   }
 
   @Override

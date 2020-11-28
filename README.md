@@ -15,6 +15,8 @@ Tools to Learn
 - SonarLint
 - Java Flight Recorder (when ready)
 - Microbenchmarking (when ready)
+- ArchUnit
+- Dagger
 
 Libraries to Learn
 ---------

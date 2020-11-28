@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
  * Auxiliary information about a file
  */
 public class MetaData {
-  private LocalDateTime createTime;
-  private LocalDateTime lastModified;
+  protected LocalDateTime createTime;
+  protected LocalDateTime lastModified;
   /* add permissions (owner, group etc) in the future */
 
-  private Path path;
+  protected Path path;
 
 }
