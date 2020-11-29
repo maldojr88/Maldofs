@@ -68,5 +68,13 @@ Next Tasks
     - cat file contents
     - Simple text editor to update file?
 - Fix file permissions AND file size in "ls -l"
+- Creating, deleting, moving and copying files and directories
 - Clean up code
 - Unit tests  
+
+Future Enhancements
+--------
+- File Permissions
+- Concurrency
+- Load to Disk
+- Recreate from Disk

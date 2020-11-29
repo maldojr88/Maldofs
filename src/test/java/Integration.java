@@ -13,7 +13,7 @@ import org.junit.Test;
 public class Integration {
 
   @Test
-  public void basicIntegration() throws IOException {
+  public void basicCreateDirectory() throws IOException {
     MaldoFileSystem fs = MaldoFS.newFileSystem();
     Path first = fs.getPath("/a/b/c/");
     Files.createDirectory(first);
@@ -23,5 +23,12 @@ public class Integration {
     Path dir = fs.getPath("/a/b/");
     Directory directory = DirectoryRegistry.getDirectoryCreateIfNew(dir);
     assertThat(directory.getContents()).containsExactly(first,second);
+  }
+
+  @Test
+  public void basicCreateFile() throws IOException {
+    MaldoFileSystem fs = MaldoFS.newFileSystem();
+    Path file = fs.getPath("/home/maljos/dummyFile.txt");
+    Files.createFile(file);
   }
 }

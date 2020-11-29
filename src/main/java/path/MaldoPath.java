@@ -58,6 +58,10 @@ public class MaldoPath implements Path {
     return isDir;
   }
 
+  /**
+   * RegularFile  - "/a/b/c" -> "c"
+   * Directory    - "/a/b/c/ - "c"
+   */
   public String getRelativeName() {
     int start = canonical.length() - 1;
     if(isDir){

@@ -9,7 +9,14 @@ import java.time.LocalDateTime;
  * Logically, a file is a combination of 1) Metadata 2) Content
  */
 public abstract class File {
-  MetaData metaData;
+  protected MetaData metaData;
+
+  public File(Path path) {
+    metaData = new MetaData();
+    metaData.path = path;
+    metaData.createTime = LocalDateTime.now();
+    metaData.lastModified = metaData.createTime;
+  }
 
   public abstract boolean isDirectory();
 }

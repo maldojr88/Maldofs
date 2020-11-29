@@ -3,7 +3,6 @@ package file;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,18 +15,22 @@ public class Directory extends File {
   private Map<Path, File> content;
 
   //doesn't really belong here
+  //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
   public static final String ANSI_BLUE = "\u001B[34m";
   public static final String ANSI_RESET = "\u001B[0m";
-  //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
 
   Directory(Path path) {
+    super(path);
     checkArgument(MaldoPath.convert(path).isDirectory(), "Path must be valid");
-    metaData = new MetaData();
-    metaData.path = path;
-    metaData.createTime = LocalDateTime.now();
-    metaData.lastModified = metaData.createTime;
     content = new HashMap<>();
   }
+
+  @Override
+  public boolean isDirectory() {
+    return true;
+  }
+
+  /* READ Operations */
 
   public Path getPath(){
     return metaData.path;
@@ -36,6 +39,8 @@ public class Directory extends File {
   public List<Path> getContents(){
     return new ArrayList<>(content.keySet());
   }
+
+  /* display related READS */
 
   public Map<String, MaldoPath> getRelativeNameToPath(){
     Map<String, MaldoPath> ret = new HashMap<>();
@@ -68,12 +73,18 @@ public class Directory extends File {
     return ret;
   }
 
+  /* WRITE operations */
+
   public void addFile(File file){
-    content.put(file.metaData.path, file);
+    MaldoPath path = MaldoPath.convert(file.metaData.path);
+    checkArgument(!content.containsKey(path), "File already exists " + path.getCanonical());
+    content.put(path, file);
   }
 
-  @Override
-  public boolean isDirectory() {
-    return true;
+  public RegularFile getRegularFile(Path path){
+    MaldoPath regularPath = MaldoPath.convert(path);
+    checkArgument(content.containsKey(path), "Directory does not contain " + regularPath.getCanonical());
+    File file = content.get(path);
+    return (RegularFile) file;
   }
 }

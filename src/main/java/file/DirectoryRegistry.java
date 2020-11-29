@@ -8,7 +8,7 @@ import java.util.Map;
 import path.MaldoPath;
 
 /**
- * Registry of all directories in the FS. This should be the only place to create a directory
+ * Registry of all directories in the FS as well as many of the core operations on directories.
  */
 public class DirectoryRegistry {
   private static Map<Path,Directory> registry = new HashMap<>();
@@ -21,6 +21,23 @@ public class DirectoryRegistry {
     createParentDirectories(maldoPath);
     createDirectory(maldoPath);
     return registry.get(path);
+  }
+
+  /*public boolean directoryExists(Path path){
+    return registry.containsKey(validate(path));
+  }*/
+
+  public Directory getDirectory(Path path){
+    MaldoPath maldoPath = validate(path);
+    checkArgument(registry.containsKey(validate(maldoPath)), "Directory does not exist");
+    return registry.get(maldoPath);
+  }
+
+  public Directory getFileDirectory(Path path){
+    MaldoPath filePath = MaldoPath.convert(path);
+    checkArgument(!filePath.isDirectory(), "Path must be a File");
+    MaldoPath dirPath = MaldoPath.convert(filePath.getParent());
+    return getDirectory(dirPath);
   }
 
   private static void createParentDirectories(MaldoPath maldoPath) {

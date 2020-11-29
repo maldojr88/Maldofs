@@ -11,7 +11,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import path.MaldoPath;
+import path.PathRegistry;
 
+/**
+ * Shell commands available for Interactive
+ */
 public class InteractiveCmdRegistry {
 
   private final MaldoFileSystem fs;
@@ -27,8 +31,17 @@ public class InteractiveCmdRegistry {
       case "pwd"    -> pwd(args);
       case "exit"   -> goodbye();
       case "mkdir"  -> mkdir(args);
+      case "touch"  -> touch(args);
       default -> System.out.println("Unknown command!!!");
     }
+  }
+
+  private void touch(List<String> args) throws IOException {
+    checkArgument(args.size() == 1, "Too many arguments");
+    String filename = args.get(0);
+    MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
+    MaldoPath newFilePath = (MaldoPath) PathRegistry.createPath(fs, cwdPath.getCanonical() + filename);
+    Files.createFile(newFilePath);
   }
 
   private void goodbye() {

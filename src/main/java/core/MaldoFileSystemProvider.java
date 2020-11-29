@@ -2,6 +2,8 @@ package core;
 
 import file.Directory;
 import file.DirectoryRegistry;
+import file.RegularFile;
+import file.RegularFileOperator;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
@@ -25,6 +27,7 @@ import path.MaldoPath;
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private final MaldoFileSystem fileSystem;
+  private RegularFileOperator regularFileOperator = new RegularFileOperator();
 
   public MaldoFileSystemProvider(MaldoFileSystem fileSystem){
     this.fileSystem = fileSystem;
@@ -57,7 +60,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   @Override
   public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options,
       FileAttribute<?>... attrs) throws IOException {
-    return null;
+    RegularFile file = regularFileOperator.createFile(path, options, attrs);
+    return regularFileOperator.createChannel(file);
   }
 
   @Override
@@ -68,7 +72,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
-    Directory newDir = DirectoryRegistry.getDirectoryCreateIfNew(dir);
+    DirectoryRegistry.getDirectoryCreateIfNew(dir);
   }
 
   @Override
