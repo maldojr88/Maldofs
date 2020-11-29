@@ -59,3 +59,14 @@ drwxr-xr-x  root root 52 Nov 28 10:37 bin
 drwxr-xr-x  root root 52 Nov 28 10:37 dev
 [MaldoFS] $ 
 ``` 
+
+Next Tasks
+----
+- Implement operations on regular files
+    - Create Text File
+    - Load Binary file from current OS
+    - cat file contents
+    - Simple text editor to update file?
+- Fix file permissions AND file size in "ls -l"
+- Clean up code
+- Unit tests  
