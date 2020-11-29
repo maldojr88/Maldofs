@@ -2,7 +2,6 @@ package path;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import file.Directory;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class PathRegistry {
 
   private static MaldoPath validate(Path path) {
     MaldoPath maldoPath = MaldoPath.convert(path);
-    checkArgument(maldoPath.isValidDirectory(),"Path must be a Directory");
+    checkArgument(maldoPath.isDirectory(),"Path must be a Directory");
     return maldoPath;
   }
 }

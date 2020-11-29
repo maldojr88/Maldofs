@@ -44,7 +44,7 @@ public class DirectoryRegistry {
 
   private static MaldoPath validate(Path path) {
     MaldoPath maldoPath = MaldoPath.convert(path);
-    checkArgument(maldoPath.isValidDirectory(),"Path must be a Directory");
+    checkArgument(maldoPath.isDirectory(),"Path must be a Directory");
     return maldoPath;
   }
 }

@@ -20,6 +20,7 @@ import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Map;
 import java.util.Set;
+import path.MaldoPath;
 
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
@@ -27,6 +28,10 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   public MaldoFileSystemProvider(MaldoFileSystem fileSystem){
     this.fileSystem = fileSystem;
+  }
+
+  public Directory getDirectory(MaldoPath path){
+    return DirectoryRegistry.getDirectoryCreateIfNew(path);
   }
 
   @Override

@@ -18,10 +18,20 @@ import path.PathRegistry;
  */
 public class MaldoFileSystem extends FileSystem {
   private static Directory rootDir;
+  private static Directory currentWorkingDir;
   FileSystemProvider provider = new MaldoFileSystemProvider(this);
 
   public MaldoFileSystem(){
     rootDir = DirectoryRegistry.getDirectoryCreateIfNew(PathRegistry.createPath(this, "/"));
+    currentWorkingDir = rootDir;
+  }
+
+  public Directory getCurrentWorkingDir(){
+    return currentWorkingDir;
+  }
+
+  public void setCurrentWorkingDir(Directory dir){
+    currentWorkingDir = dir;
   }
 
   public static Path getRootDir() {

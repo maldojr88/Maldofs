@@ -10,4 +10,6 @@ import java.time.LocalDateTime;
  */
 public abstract class File {
   MetaData metaData;
+
+  public abstract boolean isDirectory();
 }

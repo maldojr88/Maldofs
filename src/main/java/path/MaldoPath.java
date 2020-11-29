@@ -43,7 +43,7 @@ public class MaldoPath implements Path {
     return (MaldoPath) path;
   }
 
-  String getCanonical() {
+  public String getCanonical() {
     return canonical;
   }
 
@@ -54,8 +54,23 @@ public class MaldoPath implements Path {
     return pathChain;
   }
 
-  public boolean isValidDirectory(){
+  public boolean isDirectory(){
     return isDir;
+  }
+
+  public String getRelativeName() {
+    int start = canonical.length() - 1;
+    if(isDir){
+      start--;
+    }
+    int end = start;
+    while(start > 0){
+      if(canonical.charAt(start) == '/'){
+        break;
+      }
+      start--;
+    }
+    return canonical.substring(start + 1, end + 1);
   }
 
   public boolean isRoot() {
