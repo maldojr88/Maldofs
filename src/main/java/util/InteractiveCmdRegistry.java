@@ -5,6 +5,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import core.MaldoFileSystem;
 import core.MaldoFileSystemProvider;
 import file.Directory;
+import file.DirectoryRegistry;
+import file.RegularFile;
+import file.RegularFileOperator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,11 +31,56 @@ public class InteractiveCmdRegistry {
     switch (identifier) {
       case "cd"     -> cd(args);
       case "ls"     -> ls(args);
+      case "cat"    -> cat(args);
       case "pwd"    -> pwd(args);
       case "exit"   -> goodbye();
+      case "echo"   -> echo(args);
       case "mkdir"  -> mkdir(args);
       case "touch"  -> touch(args);
       default -> System.out.println("Unknown command!!!");
+    }
+  }
+
+  //TODO - consolidate this file. Lots of ways of doing the same things
+
+  private void cat(List<String> args) {
+    checkArgument(args.size() == 1, "Too many arguments");
+    RegularFileOperator operator = new RegularFileOperator();
+    String filename = args.get(0);
+    Directory dir;
+    RegularFile regularFile;
+    if(filename.startsWith("/")){
+      MaldoPath path = MaldoPath.convert(PathRegistry.get(filename));
+      MaldoPath dirPath = (MaldoPath)path.getParent();
+      DirectoryRegistry registry = new DirectoryRegistry();
+      dir = registry.getDirectory(dirPath);
+      regularFile = dir.getRegularFile(path);
+
+    }else{
+      MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
+      DirectoryRegistry registry = new DirectoryRegistry();
+      dir = registry.getDirectory(cwdPath);
+      String canonical = cwdPath.getCanonical() + filename;
+      regularFile = dir.getRegularFile(canonical);
+
+    }
+    String contents = new String(regularFile.readAll());
+    System.out.println(contents);
+  }
+
+  private void echo(List<String> args) throws IOException {
+    checkArgument(args.size() <=4, "Too many arguments" );
+    String strToEcho = args.get(0).replaceAll("\'","");
+    if(args.size() == 1){//echo 'hello' | echo hello
+      System.out.println(strToEcho);
+    }else if(args.size() == 3){//echo 'hello' >> myFile.txt
+      checkArgument(args.get(1).equals(">>"), "Expected '>>' as second argument");
+      String filename = args.get(2);
+      MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
+      MaldoPath filePath = (MaldoPath) PathRegistry.createPath(fs, cwdPath.getCanonical() + filename);
+      Files.write(filePath, strToEcho.getBytes());
+    }else {
+      throw new RuntimeException("Wrong number of arguments passed");
     }
   }
 
@@ -66,7 +114,7 @@ public class InteractiveCmdRegistry {
         }
         i++;
       }
-    }else{
+    }else{ // ls -l
       List<String> detailedContents = fs.getCurrentWorkingDir().getPrintableDetailedContents();
       for(String fileDetail :detailedContents){
         System.out.println(fileDetail);
@@ -86,10 +134,9 @@ public class InteractiveCmdRegistry {
     }else{
       Map<String, MaldoPath> relativeNameToPath = fs.getCurrentWorkingDir().getRelativeNameToPath();
       if(relativeNameToPath.containsKey(desiredDir)){
-        //relative path
-        desiredPath = relativeNameToPath.get(desiredDir);
+        desiredPath = relativeNameToPath.get(desiredDir);//relative path
       }else{
-        desiredPath = fs.getPath(dirAppend(desiredDir));
+        desiredPath = fs.getPath(dirAppend(desiredDir));//absolute path
       }
     }
 

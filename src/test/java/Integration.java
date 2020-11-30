@@ -1,7 +1,6 @@
 import static com.google.common.truth.Truth.assertThat;
 
 import client.MaldoFS;
-import com.google.common.truth.Truth;
 import core.MaldoFileSystem;
 import file.Directory;
 import file.DirectoryRegistry;
@@ -22,7 +21,7 @@ public class Integration {
 
     Path dir = fs.getPath("/a/b/");
     Directory directory = DirectoryRegistry.getDirectoryCreateIfNew(dir);
-    assertThat(directory.getContents()).containsExactly(first,second);
+    assertThat(directory.getAllPaths()).containsExactly(first,second);
   }
 
   @Test

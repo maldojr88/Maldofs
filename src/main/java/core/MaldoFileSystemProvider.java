@@ -1,10 +1,12 @@
 package core;
 
+import channel.MaldoOutputStream;
 import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
 import file.RegularFileOperator;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AccessMode;
@@ -62,6 +64,13 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
       FileAttribute<?>... attrs) throws IOException {
     RegularFile file = regularFileOperator.createFile(path, options, attrs);
     return regularFileOperator.createChannel(file);
+  }
+
+  @Override
+  public OutputStream newOutputStream(Path path, OpenOption... options) throws IOException {
+    MaldoPath maldoPath = MaldoPath.convert(path);
+    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
+    return new MaldoOutputStream(regularFile);
   }
 
   @Override

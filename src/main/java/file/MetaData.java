@@ -9,8 +9,15 @@ import java.time.LocalDateTime;
 public class MetaData {
   protected LocalDateTime createTime;
   protected LocalDateTime lastModified;
+  protected Path path;
   /* add permissions (owner, group etc) in the future */
 
-  protected Path path;
+  public MetaData(Path path){
+    this.path = path;
+    createTime = LocalDateTime.now();
+    lastModified = createTime;
+  }
+
+
 
 }

@@ -21,6 +21,11 @@ public class PathRegistry {
     return registry.get(canonical);
   }
 
+  public static Path get(String canonical){
+    checkArgument(registry.containsKey(canonical), "Path not found in registry");
+    return registry.get(canonical);
+  }
+
   public static boolean exists(Path somePath){
     MaldoPath path = validate(somePath);
     return registry.containsKey(path.getCanonical());

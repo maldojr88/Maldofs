@@ -1,7 +1,6 @@
 package file;
 
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 
 /**
  * Files are modeled similar to Unix filesystems.
@@ -12,10 +11,7 @@ public abstract class File {
   protected MetaData metaData;
 
   public File(Path path) {
-    metaData = new MetaData();
-    metaData.path = path;
-    metaData.createTime = LocalDateTime.now();
-    metaData.lastModified = metaData.createTime;
+    this.metaData = new MetaData(path);
   }
 
   public abstract boolean isDirectory();

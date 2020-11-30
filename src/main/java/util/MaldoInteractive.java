@@ -25,22 +25,6 @@ public class MaldoInteractive {
     startREPL();
   }
 
-  private static void startREPL() {
-
-    String userInput = "";
-
-    while (!userInput.equals(EXIT)) {
-      Scanner name = new Scanner(System.in);
-      System.out.print(PROMPT);
-      userInput = name.nextLine();
-      if(userInput.equals("")){
-        System.out.println("====> no command typed");
-        continue;
-      }
-      tokenizeAndExecute(userInput);
-    }
-  }
-
   private static void initialize(){
     String[] cmds = {
         "mkdir /home/",
@@ -56,6 +40,22 @@ public class MaldoInteractive {
     };
     for(String cmd : cmds){
       tokenizeAndExecute(cmd);
+    }
+  }
+
+  private static void startREPL() {
+
+    String userInput = "";
+
+    while (!userInput.equals(EXIT)) {
+      Scanner name = new Scanner(System.in);
+      System.out.print(PROMPT);
+      userInput = name.nextLine();
+      if(userInput.equals("")){
+        System.out.println("====> no command typed");
+        continue;
+      }
+      tokenizeAndExecute(userInput);
     }
   }
 

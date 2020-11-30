@@ -36,8 +36,27 @@ public class Directory extends File {
     return metaData.path;
   }
 
-  public List<Path> getContents(){
+  public List<Path> getAllPaths(){
     return new ArrayList<>(content.keySet());
+  }
+
+  public RegularFile getRegularFile(String canonical) {
+    List<Path> paths = getAllPaths();
+    for (Path path : paths) {
+      MaldoPath maldoPath = MaldoPath.convert(path);
+      if(maldoPath.getCanonical().equals(canonical)){
+        return (RegularFile) content.get(path);
+      }
+    }
+    checkArgument(false, "File not found " + canonical);
+    return null;
+  }
+
+  public RegularFile getRegularFile(Path path){
+    MaldoPath regularPath = MaldoPath.convert(path);
+    checkArgument(content.containsKey(path), "Directory does not contain " + regularPath.getCanonical());
+    File file = content.get(path);
+    return (RegularFile) file;
   }
 
   /* display related READS */
@@ -79,12 +98,5 @@ public class Directory extends File {
     MaldoPath path = MaldoPath.convert(file.metaData.path);
     checkArgument(!content.containsKey(path), "File already exists " + path.getCanonical());
     content.put(path, file);
-  }
-
-  public RegularFile getRegularFile(Path path){
-    MaldoPath regularPath = MaldoPath.convert(path);
-    checkArgument(content.containsKey(path), "Directory does not contain " + regularPath.getCanonical());
-    File file = content.get(path);
-    return (RegularFile) file;
   }
 }
