@@ -3,7 +3,8 @@ MaldoFS
 
 Overview
 --------
-Personal Java learning project inspired by [Jimfs](https://github.com/google/jimfs) 
+Personal Java learning project inspired by [Jimfs](https://github.com/google/jimfs). Check out
+the CONCEPTS.md file to understand high level components to understand the code. 
 
 Tools to Learn
 ---------

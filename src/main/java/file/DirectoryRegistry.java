@@ -18,8 +18,8 @@ public class DirectoryRegistry {
     if(registry.containsKey(path)){
       return registry.get(path);
     }
-    createParentDirectories(maldoPath);
-    createDirectory(maldoPath);
+    createParentDirectoriesIfNotExist(maldoPath);
+    createDirectoryIfNotExist(maldoPath);
     return registry.get(path);
   }
 
@@ -40,21 +40,21 @@ public class DirectoryRegistry {
     return getDirectory(dirPath);
   }
 
-  private static void createParentDirectories(MaldoPath maldoPath) {
+  private static void createParentDirectoriesIfNotExist(MaldoPath maldoPath) {
     for(Path childPath: maldoPath.getPathChain()){
       if(!registry.containsKey(childPath)){
-        createDirectory(maldoPath);
+        createDirectoryIfNotExist(maldoPath);
       }
     }
   }
 
-  private static void createDirectory(MaldoPath maldoPath) {
+  private static void createDirectoryIfNotExist(MaldoPath maldoPath) {
     if(maldoPath.isRoot()){
       registry.put(maldoPath, new Directory(maldoPath));
     }else{
       Directory newDir = new Directory(maldoPath);
       Directory parentDir = getDirectoryCreateIfNew(maldoPath.getParent());
-      parentDir.addFile(newDir);
+      parentDir.addFileIfNotExist(newDir);
       registry.put(maldoPath, newDir);
     }
   }

@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import path.MaldoPath;
-import path.PathRegistry;
 
 /**
  * Shell commands available for Interactive
@@ -50,7 +49,7 @@ public class InteractiveCmdRegistry {
     Directory dir;
     RegularFile regularFile;
     if(filename.startsWith("/")){
-      MaldoPath path = MaldoPath.convert(PathRegistry.get(filename));
+      MaldoPath path = (MaldoPath) fs.getPath(filename);
       MaldoPath dirPath = (MaldoPath)path.getParent();
       DirectoryRegistry registry = new DirectoryRegistry();
       dir = registry.getDirectory(dirPath);
@@ -77,7 +76,7 @@ public class InteractiveCmdRegistry {
       checkArgument(args.get(1).equals(">>"), "Expected '>>' as second argument");
       String filename = args.get(2);
       MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
-      MaldoPath filePath = (MaldoPath) PathRegistry.createPath(fs, cwdPath.getCanonical() + filename);
+      MaldoPath filePath = (MaldoPath) fs.getPath(cwdPath.getCanonical() + filename);
       Files.write(filePath, strToEcho.getBytes());
     }else {
       throw new RuntimeException("Wrong number of arguments passed");
@@ -88,7 +87,7 @@ public class InteractiveCmdRegistry {
     checkArgument(args.size() == 1, "Too many arguments");
     String filename = args.get(0);
     MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
-    MaldoPath newFilePath = (MaldoPath) PathRegistry.createPath(fs, cwdPath.getCanonical() + filename);
+    MaldoPath newFilePath = (MaldoPath) fs.getPath(cwdPath.getCanonical() + filename);
     Files.createFile(newFilePath);
   }
 

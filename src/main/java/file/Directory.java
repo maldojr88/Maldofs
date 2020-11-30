@@ -36,6 +36,10 @@ public class Directory extends File {
     return metaData.path;
   }
 
+  private boolean containsFile(MaldoPath path) {
+    return content.containsKey(path);
+  }
+
   public List<Path> getAllPaths(){
     return new ArrayList<>(content.keySet());
   }
@@ -93,6 +97,13 @@ public class Directory extends File {
   }
 
   /* WRITE operations */
+
+  public void addFileIfNotExist(File file){
+    MaldoPath path = MaldoPath.convert(file.metaData.path);
+    if(!containsFile(path)){
+      addFile(file);
+    }
+  }
 
   public void addFile(File file){
     MaldoPath path = MaldoPath.convert(file.metaData.path);

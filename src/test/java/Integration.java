@@ -27,7 +27,7 @@ public class Integration {
   @Test
   public void basicCreateFile() throws IOException {
     MaldoFileSystem fs = MaldoFS.newFileSystem();
-    Path file = fs.getPath("/home/maljos/dummyFile.txt");
+    Path file = fs.getPath("/dummyFile.txt");//create in root as its guaranteed it will exist
     Files.createFile(file);
   }
 }
