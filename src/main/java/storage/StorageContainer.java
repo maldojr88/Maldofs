@@ -18,13 +18,23 @@ public class StorageContainer {
     return CAPACITY - buffer.remaining();
   }
 
-  public void append(byte[] toAppend){
+  /**
+   * Example:
+   *
+   * <pre>
+   *   String k = "abc";
+   *   ByteBuffer b = ByteBuffer.wrap(k.getBytes());
+   *   String v = newString(b.array());
+   *   v.equals(k); //true
+   *   </pre>
+   */
+
+
+  public void append(byte[] toAppend) {
     buffer.put(toAppend);
   }
 
   public byte[] readAll() {
-    byte[] arr = new byte[buffer.position()];
-    buffer.get(arr);
-    return arr;
+    return buffer.array();
   }
 }

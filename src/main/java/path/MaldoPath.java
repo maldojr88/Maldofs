@@ -24,7 +24,7 @@ public class MaldoPath implements Path {
   private boolean isRoot;
   private final String canonical;
   private List<String> splits;
-  private List<Path> pathChain = new ArrayList<>();
+  private List<MaldoPath> pathChain = new ArrayList<>();
 
    MaldoPath(FileSystem fs, String canonical){
     validate(fs, canonical);
@@ -50,7 +50,7 @@ public class MaldoPath implements Path {
   /**
    * "/ab/cd/ef/" -> {"/ab/", "/ab/cd/", "/ab/cd/ef/"}
    */
-  public List<Path> getPathChain(){
+  public List<MaldoPath> getPathChain(){
     return pathChain;
   }
 
@@ -108,7 +108,7 @@ public class MaldoPath implements Path {
   }
 
   @Override
-  public Path getParent() {
+  public MaldoPath getParent() {
     if (isRoot) {
       return null;
     }
@@ -226,7 +226,6 @@ public class MaldoPath implements Path {
         pathChain.add(PathRegistry.createPath(maldoFs, sb.toString()));
       }
     }
-    //pathChain.add(this);
   }
 
   private boolean finishesWith(MaldoPath path) {

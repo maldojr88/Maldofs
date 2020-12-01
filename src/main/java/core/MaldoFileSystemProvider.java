@@ -62,7 +62,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   @Override
   public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options,
       FileAttribute<?>... attrs) throws IOException {
-    RegularFile file = regularFileOperator.createFile(path, options, attrs);
+    RegularFile file = regularFileOperator.createFile(MaldoPath.convert(path), options, attrs);
     return regularFileOperator.createChannel(file);
   }
 
@@ -80,8 +80,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
-    DirectoryRegistry.getDirectoryCreateIfNew(dir);
+  public void createDirectory(Path dirPath, FileAttribute<?>... attrs) throws IOException {
+    DirectoryRegistry.getDirectoryCreateIfNew(MaldoPath.convert(dirPath));
   }
 
   @Override

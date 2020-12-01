@@ -1,14 +1,14 @@
 package file;
 
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
+import path.MaldoPath;
 import storage.StorageContainer;
 
 public class RegularFile extends File {
-  private ContentType type;
-  private StorageContainer content;
+  private final ContentType type;
+  private final StorageContainer content;
 
-  public RegularFile(ContentType type, Path path){
+  public RegularFile(ContentType type, MaldoPath path){
     super(path);
     this.type = type;
     content = new StorageContainer();
@@ -17,6 +17,10 @@ public class RegularFile extends File {
   @Override
   public boolean isDirectory() {
     return false;
+  }
+
+  public MaldoPath getPath(){
+    return metaData.path;
   }
 
   public void append(ByteBuffer src) {

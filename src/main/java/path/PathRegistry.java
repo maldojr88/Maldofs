@@ -3,7 +3,6 @@ package path;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,9 +10,9 @@ import java.util.Map;
  * Registry of all the paths known to the FS
  */
 public class PathRegistry {
-  private static Map<String, Path> registry = new HashMap<>();
+  private static final Map<String, MaldoPath> registry = new HashMap<>();
 
-  public static Path createPath(FileSystem fs, String canonical){
+  public static MaldoPath createPath(FileSystem fs, String canonical){
     if (!registry.containsKey(canonical)){
       registry.put(canonical, new MaldoPath(fs, canonical));
     }
@@ -21,19 +20,17 @@ public class PathRegistry {
     return registry.get(canonical);
   }
 
-  public static Path get(String canonical){
+  public static MaldoPath get(String canonical){
     checkArgument(registry.containsKey(canonical), "Path not found in registry");
     return registry.get(canonical);
   }
 
-  public static boolean exists(Path somePath){
-    MaldoPath path = validate(somePath);
+  public static boolean exists(MaldoPath path){
+    ensureIsDirectoryPath(path);
     return registry.containsKey(path.getCanonical());
   }
 
-  private static MaldoPath validate(Path path) {
-    MaldoPath maldoPath = MaldoPath.convert(path);
-    checkArgument(maldoPath.isDirectory(),"Path must be a Directory");
-    return maldoPath;
+  private static void ensureIsDirectoryPath(MaldoPath path) {
+    checkArgument(path.isDirectory(),"Path must be a Directory");
   }
 }

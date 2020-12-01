@@ -1,6 +1,6 @@
 package file;
 
-import java.nio.file.Path;
+import path.MaldoPath;
 
 /**
  * Files are modeled similar to Unix filesystems.
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 public abstract class File {
   protected MetaData metaData;
 
-  public File(Path path) {
+  public File(MaldoPath path) {
     this.metaData = new MetaData(path);
   }
 

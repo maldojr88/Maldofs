@@ -11,6 +11,7 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
+import path.MaldoPath;
 import path.PathRegistry;
 
 /**
@@ -34,11 +35,11 @@ public class MaldoFileSystem extends FileSystem {
     currentWorkingDir = dir;
   }
 
-  public static Path getRootDir() {
+  public static MaldoPath getRootDir() {
     return rootDir.getPath();
   }
 
-  public Path getPath(String path){
+  public MaldoPath getPath(String path){
     return PathRegistry.createPath(this, path);
   }
 
