@@ -1,6 +1,7 @@
 package storage;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Container for storage of binary data
@@ -15,7 +16,7 @@ public class StorageContainer {
   }
 
   public int getSize(){
-    return CAPACITY - buffer.remaining();
+    return buffer.position();
   }
 
   /**
@@ -35,6 +36,7 @@ public class StorageContainer {
   }
 
   public byte[] readAll() {
-    return buffer.array();
+    int size = buffer.position();
+    return Arrays.copyOfRange(buffer.array(), 0, size);
   }
 }

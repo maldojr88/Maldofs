@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
 
 public class MaldoPath implements Path {
 
-  private final FileSystem maldoFs;
+  private final MaldoFileSystem maldoFs;
   private final boolean isDir;
   private boolean isRoot;
   private final String canonical;
   private List<String> splits;
   private List<MaldoPath> pathChain = new ArrayList<>();
 
-   MaldoPath(FileSystem fs, String canonical){
+   MaldoPath(MaldoFileSystem fs, String canonical){
     validate(fs, canonical);
     this.canonical = canonical;
     this.isDir = canonical.endsWith("/");
@@ -84,7 +84,7 @@ public class MaldoPath implements Path {
   /* Path specific methods/functions */
 
   @Override
-  public FileSystem getFileSystem() {
+  public MaldoFileSystem getFileSystem() {
     return maldoFs;
   }
 

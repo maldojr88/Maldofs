@@ -2,6 +2,8 @@ package core;
 
 import file.Directory;
 import file.DirectoryRegistry;
+import file.File;
+import file.RegularFileOperator;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
@@ -20,11 +22,14 @@ import path.PathRegistry;
 public class MaldoFileSystem extends FileSystem {
   private static Directory rootDir;
   private static Directory currentWorkingDir;
-  FileSystemProvider provider = new MaldoFileSystemProvider(this);
+  private final FileSystemProvider provider;
+  private final RegularFileOperator regularFileOperator;
 
   public MaldoFileSystem(){
     rootDir = DirectoryRegistry.getDirectoryCreateIfNew(PathRegistry.createPath(this, "/"));
     currentWorkingDir = rootDir;
+    provider = new MaldoFileSystemProvider(this);
+    regularFileOperator = new RegularFileOperator();
   }
 
   public Directory getCurrentWorkingDir(){
@@ -41,6 +46,14 @@ public class MaldoFileSystem extends FileSystem {
 
   public MaldoPath getPath(String path){
     return PathRegistry.createPath(this, path);
+  }
+
+  public File getFile(MaldoPath path){
+    if(path.isDirectory()){
+      return DirectoryRegistry.getDirectory(path);
+    }else{
+      return regularFileOperator.getRegularFile(path);
+    }
   }
 
   @Override

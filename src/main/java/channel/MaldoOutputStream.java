@@ -15,8 +15,9 @@ public class MaldoOutputStream extends OutputStream {
 
   @Override
   public void write(int b) throws IOException {
-    ByteBuffer buffer = ByteBuffer.allocate(4);
-    buffer.putInt(b);
+    ByteBuffer buffer = ByteBuffer.allocate(1);
+    byte lowerByte = (byte)(b & 0xFF);
+    buffer.put(lowerByte);
     file.append(buffer);
   }
 }

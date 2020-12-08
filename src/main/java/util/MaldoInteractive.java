@@ -44,7 +44,6 @@ public class MaldoInteractive {
   }
 
   private static void startREPL() {
-
     String userInput = "";
 
     while (!userInput.equals(EXIT)) {

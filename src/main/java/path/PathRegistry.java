@@ -2,6 +2,7 @@ package path;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import core.MaldoFileSystem;
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
 public class PathRegistry {
   private static final Map<String, MaldoPath> registry = new HashMap<>();
 
-  public static MaldoPath createPath(FileSystem fs, String canonical){
+  public static MaldoPath createPath(MaldoFileSystem fs, String canonical){
     if (!registry.containsKey(canonical)){
       registry.put(canonical, new MaldoPath(fs, canonical));
     }

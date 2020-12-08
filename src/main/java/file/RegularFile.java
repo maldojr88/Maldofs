@@ -1,6 +1,7 @@
 package file;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import path.MaldoPath;
 import storage.StorageContainer;
 
@@ -19,12 +20,18 @@ public class RegularFile extends File {
     return false;
   }
 
+  @Override
+  public long getByteSize() {
+    return content.getSize();
+  }
+
   public MaldoPath getPath(){
     return metaData.path;
   }
 
   public void append(ByteBuffer src) {
     content.append(src.array());
+    this.metaData.lastModified = LocalDateTime.now();
   }
 
   public byte[] readAll(){

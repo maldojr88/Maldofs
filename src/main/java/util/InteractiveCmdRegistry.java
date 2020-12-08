@@ -15,7 +15,7 @@ import java.util.Map;
 import path.MaldoPath;
 
 /**
- * Shell commands available for Interactive
+ * Shell commands available for Interactive Shell
  */
 public class InteractiveCmdRegistry {
 
@@ -69,7 +69,6 @@ public class InteractiveCmdRegistry {
       dir = DirectoryRegistry.getDirectory(cwdPath);
       String canonical = cwdPath.getCanonical() + filename;
       regularFile = dir.getRegularFile(canonical);
-
     }
     String contents = new String(regularFile.readAll());
     System.out.println(contents);
@@ -157,7 +156,7 @@ public class InteractiveCmdRegistry {
     if(newDirName.startsWith("/")){
       newDirName = dirAppend(newDirName);
     }else{
-      MaldoPath currentDir = (MaldoPath) fs.getCurrentWorkingDir().getPath();
+      MaldoPath currentDir = fs.getCurrentWorkingDir().getPath();
       newDirName = dirAppend(currentDir.getCanonical() + newDirName);
     }
 

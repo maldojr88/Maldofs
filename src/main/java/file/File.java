@@ -15,4 +15,6 @@ public abstract class File {
   }
 
   public abstract boolean isDirectory();
+
+  public abstract long getByteSize();
 }

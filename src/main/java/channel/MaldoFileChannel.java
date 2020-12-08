@@ -25,27 +25,27 @@ public class MaldoFileChannel implements SeekableByteChannel {
 
   @Override
   public int read(ByteBuffer dst) throws IOException {
-    check();
+    checkOpen();
     dst.put(file.readAll());
     return 0;
   }
 
   @Override
   public int write(ByteBuffer src) throws IOException {
-    check();
+    checkOpen();
     file.append(src);
     return 0;
   }
 
   @Override
   public long position() throws IOException {
-    check();
+    checkOpen();
     return 0;
   }
 
   @Override
   public SeekableByteChannel position(long newPosition) throws IOException {
-    check();
+    checkOpen();
     return null;
   }
 
@@ -69,7 +69,7 @@ public class MaldoFileChannel implements SeekableByteChannel {
     isOpen = false;
   }
 
-  private void check() {
+  private void checkOpen() {
     checkArgument(isOpen, "Channel is no longer open");
   }
 }

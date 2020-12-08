@@ -29,6 +29,11 @@ public class Directory extends File {
     return true;
   }
 
+  @Override
+  public long getByteSize() {
+    return content.keySet().stream().mapToLong(x->x.getCanonical().getBytes().length).sum();
+  }
+
   /* READ Operations */
 
   public MaldoPath getPath(){
@@ -86,9 +91,13 @@ public class Directory extends File {
     List<String> ret = new ArrayList<>();
     for (Entry<MaldoPath, File> e : content.entrySet()) {
       MaldoPath path = e.getKey();
+      File file = path.getFileSystem().getFile(path);
       DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd hh:mm");
-      String str = String.format("%s root root 52 %s %s",
-          "drwxr-xr-x ", e.getValue().metaData.lastModified.format(format), path.getRelativeName());
+      String str = String.format("%s root root %d %s %s",
+          "drwxr-xr-x ",
+          file.getByteSize(),
+          e.getValue().metaData.lastModified.format(format),
+          path.getRelativeName());
       ret.add(str);
     }
     return ret;
