@@ -23,7 +23,7 @@ public class DirectoryRegistry {
     return registry.get(path);
   }
 
-  public boolean directoryExists(MaldoPath path){
+  public static boolean directoryExists(MaldoPath path){
     return registry.containsKey(path);
   }
 

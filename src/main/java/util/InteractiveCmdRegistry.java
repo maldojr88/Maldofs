@@ -28,6 +28,7 @@ public class InteractiveCmdRegistry {
   public void executeCommand(String identifier, List<String> args) throws IOException {
     switch (InteractiveCmd.get(identifier)) {
       case CD     -> cd(args);
+      case CP     -> cp(args);
       case LS     -> ls(args);
       case CAT    -> cat(args);
       case PWD    -> pwd(args);
@@ -40,6 +41,31 @@ public class InteractiveCmdRegistry {
     }
   }
 
+  private void cp(List<String> args) throws IOException {
+    checkArgument(args.size() == 2, "Only 2 arguments (source, target)");
+    MaldoPath source = getAbsolutePathExists(args.get(0));
+    MaldoPath target = getAbsolutePathNotExists(args.get(1), source.isDirectory());
+    Files.copy(source, target);
+  }
+
+  private MaldoPath getAbsolutePathExists(String path){
+    if(path.startsWith("/")){
+      return fs.getPath(path);
+    }else{
+      Directory dir = DirectoryRegistry.getDirectory(fs.getCurrentWorkingDir().getPath());
+      return dir.getRelativeNameToPath().get(path);
+    }
+  }
+
+  private MaldoPath getAbsolutePathNotExists(String path, boolean directory){
+    if(path.startsWith("/")){
+      return fs.getPath(path);
+    }else{
+      String append = directory ? "/" : "";
+      return fs.getPath(fs.getCurrentWorkingDir().getPath().getCanonical() + path + append);
+    }
+  }
+
   private void help() {
     System.out.println("Available commands:");
     for (InteractiveCmd command : InteractiveCmd.values()) {
@@ -48,7 +74,6 @@ public class InteractiveCmdRegistry {
   }
 
   /**
-   *
    * Create a new path --> fs.getPath("string")
    */
 

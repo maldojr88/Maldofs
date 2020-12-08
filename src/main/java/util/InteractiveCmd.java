@@ -5,6 +5,7 @@ import java.util.Map;
 
 public enum InteractiveCmd {
   CD("cd"),
+  CP("cp"),
   LS("ls"),
   CAT("cat"),
   PWD("pwd"),

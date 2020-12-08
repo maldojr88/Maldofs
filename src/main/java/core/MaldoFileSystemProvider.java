@@ -1,5 +1,7 @@
 package core;
 
+import static com.google.common.base.Preconditions.*;
+
 import channel.MaldoOutputStream;
 import file.Directory;
 import file.DirectoryRegistry;
@@ -28,11 +30,11 @@ import path.MaldoPath;
 
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
-  private final MaldoFileSystem fileSystem;
+  private final MaldoFileSystem fs;
   private RegularFileOperator regularFileOperator = new RegularFileOperator();
 
-  public MaldoFileSystemProvider(MaldoFileSystem fileSystem){
-    this.fileSystem = fileSystem;
+  public MaldoFileSystemProvider(MaldoFileSystem fs){
+    this.fs = fs;
   }
 
   public Directory getDirectory(MaldoPath path){
@@ -90,8 +92,31 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void copy(Path source, Path target, CopyOption... options) throws IOException {
+  public void copy(Path src, Path tgt, CopyOption... options) throws IOException {
+    MaldoPath sourcePath = MaldoPath.convert(src);
+    MaldoPath targetPath = MaldoPath.convert(tgt);
+    validateCopy(sourcePath, targetPath);
 
+    if(sourcePath.isDirectory()){
+      //TODO - allow for recursive copy
+      checkArgument(!DirectoryRegistry.directoryExists(targetPath), "target already exists");
+      DirectoryRegistry.getDirectoryCreateIfNew(targetPath);
+      Directory sourceDir = DirectoryRegistry.getDirectory(sourcePath);
+      for(RegularFile file : sourceDir.getAllRegularFiles()){
+        MaldoPath copyPath = fs.getPath(targetPath.getCanonical() + file.getPath().getRelativeName());
+        regularFileOperator.createCopy(copyPath, file);
+      }
+    } else {
+      RegularFile sourceFile = regularFileOperator.getRegularFile(sourcePath);
+      regularFileOperator.createCopy(targetPath, sourceFile);
+    }
+  }
+
+  private void validateCopy(MaldoPath source, MaldoPath target) throws IOException {
+    if((source.isDirectory() && !target.isDirectory())
+    || !source.isDirectory() && target.isDirectory()){
+      throw new IOException("source and target must be the same type of file");
+    }
   }
 
   @Override

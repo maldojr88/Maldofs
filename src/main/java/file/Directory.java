@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import path.MaldoPath;
 
 public class Directory extends File {
@@ -64,6 +65,13 @@ public class Directory extends File {
     checkArgument(content.containsKey(path), "Directory does not contain " + regularPath.getCanonical());
     File file = content.get(path);
     return (RegularFile) file;
+  }
+
+  public List<RegularFile> getAllRegularFiles() {
+    return content.values().stream()
+        .filter(x-> !x.isDirectory())
+        .map(x -> (RegularFile) x)
+        .collect(Collectors.toList());
   }
 
   /* display related READS */

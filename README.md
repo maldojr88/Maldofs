@@ -30,8 +30,9 @@ Requirements
 - ~~Create FileSystem hierarchy with Paths~~
 - ~~Create interactive REPL/shell for the FileSystem~~
 - Load a file from the current FS into MaldoFS
-- Create a file from a String or Binary in Java
+- ~~Create a file from a String or Binary in Java~~
 - Save FS on Disk (Reload)
+- Copy, Move, Remove files and directories
 
 Demo
 ------
