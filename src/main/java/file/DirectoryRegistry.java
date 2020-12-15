@@ -38,6 +38,11 @@ public class DirectoryRegistry {
     return getDirectory(dirPath);
   }
 
+  public static void remove(MaldoPath path) {
+    checkArgument(registry.containsKey(path), "Path to remove does not exist");
+    registry.remove(path);
+  }
+
   private static void createParentDirectoriesIfNotExist(MaldoPath maldoPath) {
     for(MaldoPath childPath: maldoPath.getPathChain()){
       if(!registry.containsKey(childPath)){

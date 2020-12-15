@@ -29,6 +29,7 @@ public class InteractiveCmdRegistry {
     switch (InteractiveCmd.get(identifier)) {
       case CD     -> cd(args);
       case CP     -> cp(args);
+      case RM     -> rm(args);
       case LS     -> ls(args);
       case CAT    -> cat(args);
       case PWD    -> pwd(args);
@@ -41,6 +42,12 @@ public class InteractiveCmdRegistry {
     }
   }
 
+  private void rm(List<String> args) throws IOException {
+    checkArgument(args.size() == 1, "Only 1 arguments target");
+    MaldoPath target = getAbsolutePathExists(args.get(0));
+    Files.delete(target);
+  }
+
   private void cp(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "Only 2 arguments (source, target)");
     MaldoPath source = getAbsolutePathExists(args.get(0));
@@ -48,6 +55,9 @@ public class InteractiveCmdRegistry {
     Files.copy(source, target);
   }
 
+  /**
+   * Get the absolute path for a path which should exist
+   */
   private MaldoPath getAbsolutePathExists(String path){
     if(path.startsWith("/")){
       return fs.getPath(path);
@@ -57,6 +67,9 @@ public class InteractiveCmdRegistry {
     }
   }
 
+  /**
+   * Get the absolute path for a path which does not exist yet
+   */
   private MaldoPath getAbsolutePathNotExists(String path, boolean directory){
     if(path.startsWith("/")){
       return fs.getPath(path);

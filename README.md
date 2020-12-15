@@ -64,16 +64,12 @@ drwxr-xr-x  root root 52 Nov 28 10:37 dev
 
 Next Tasks
 ----
-- Implement operations on regular files    
-    - Append to file
-    - Cat file contents
-    - Remove File
-    - Copy file
+- Implement operations on regular files        
+    - ~~Remove File~~  
     - Move file
     - Load Binary file from current OS
     - Simple text editor to update file?
-- Fix file permissions AND file size in "ls -l"
-- Creating, deleting, moving and copying files and directories
+- Fix file permissions AND file size in "ls -l" 
 - Clean up code
 - Unit tests  
 

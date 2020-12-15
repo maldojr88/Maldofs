@@ -125,4 +125,9 @@ public class Directory extends File {
     checkArgument(!content.containsKey(path), "File already exists " + path.getCanonical());
     content.put(path, file);
   }
+
+  public void remove(MaldoPath targetPath) {
+    checkArgument(content.containsKey(targetPath), "Directory doesn't contain file to remove");
+    content.remove(targetPath);
+  }
 }
