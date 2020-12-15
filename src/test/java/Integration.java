@@ -69,4 +69,19 @@ public class Integration {
         .allMatch(x->Arrays.equals(x.readAll(), fileContent.getBytes()));
     assertThat(contentIsTheSame).isTrue();
   }
+
+  @Test
+  public void remove() throws IOException {
+    MaldoPath dirToRemove = fs.getPath("/toDelete/");
+    Files.createDirectory(dirToRemove);
+    MaldoPath filePath = fs.getPath("/toDelete/file.txt");
+    Files.createFile(filePath);
+
+    Files.delete(filePath);
+    Directory dir = DirectoryRegistry.getDirectory(dirToRemove);
+    assertThat(dir.contains(filePath)).isFalse();
+
+    Files.delete(dirToRemove);
+    assertThat(DirectoryRegistry.directoryExists(dirToRemove)).isFalse();
+  }
 }

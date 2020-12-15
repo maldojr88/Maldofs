@@ -74,6 +74,10 @@ public class Directory extends File {
         .collect(Collectors.toList());
   }
 
+  public boolean contains(MaldoPath filePath) {
+    return content.containsKey(filePath);
+  }
+
   /* display related READS */
 
   public Map<String, MaldoPath> getRelativeNameToPath(){
