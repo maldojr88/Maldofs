@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import path.MaldoPath;
 
 /**
@@ -29,6 +30,7 @@ public class InteractiveCmdRegistry {
     switch (InteractiveCmd.get(identifier)) {
       case CD     -> cd(args);
       case CP     -> cp(args);
+      case MV     -> mv(args);
       case RM     -> rm(args);
       case LS     -> ls(args);
       case CAT    -> cat(args);
@@ -42,14 +44,44 @@ public class InteractiveCmdRegistry {
     }
   }
 
+  private void mv(List<String> args) throws IOException {
+    checkArgument(args.size() == 2, "2 arguments expected (source, target)");
+    String sourceStr = args.get(0);
+    String targetStr = args.get(1);
+    MaldoPath source = getAbsolutePathExists(sourceStr);
+    Optional<MaldoPath> localPath = localDirRefereence(targetStr);
+
+    MaldoPath target;
+    if(localPath.isPresent()){//mv myfile etc
+      target = localPath.get();
+      if(target.isDirectory() && !source.isDirectory()){
+        target = fs.getPath(target.getCanonical() + source.getRelativeName());
+      }
+    }else{
+      target = getAbsolutePathNotExists(targetStr, source.isDirectory());
+    }
+    Files.move(source, target);
+  }
+
+  /**
+   * If path refers to something local in the current working dir, that takes precedence
+   */
+  public Optional<MaldoPath> localDirRefereence(String path){
+    Map<String, MaldoPath> relativeNameToPath = fs.getCurrentWorkingDir().getRelativeNameToPath();
+    if(relativeNameToPath.containsKey(path)){
+      return Optional.of(relativeNameToPath.get(path));
+    }
+    return Optional.empty();
+  }
+
   private void rm(List<String> args) throws IOException {
-    checkArgument(args.size() == 1, "Only 1 arguments target");
+    checkArgument(args.size() == 1, "Only 1 arguments - target");
     MaldoPath target = getAbsolutePathExists(args.get(0));
     Files.delete(target);
   }
 
   private void cp(List<String> args) throws IOException {
-    checkArgument(args.size() == 2, "Only 2 arguments (source, target)");
+    checkArgument(args.size() == 2, "2 arguments expected (source, target)");
     MaldoPath source = getAbsolutePathExists(args.get(0));
     MaldoPath target = getAbsolutePathNotExists(args.get(1), source.isDirectory());
     Files.copy(source, target);

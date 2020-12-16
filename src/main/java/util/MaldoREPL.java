@@ -9,7 +9,7 @@ import java.util.Scanner;
 /**
  * Run a REPL/Shell like interactive environment for working with the FileSystem
  */
-public class MaldoInteractive {
+public class MaldoREPL {
 
   private static final String PROMPT = "[MaldoFS] $ ";
   private static final String EXIT = "exit";

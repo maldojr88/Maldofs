@@ -4,7 +4,6 @@ import client.MaldoFS;
 import core.MaldoFileSystem;
 import file.Directory;
 import file.DirectoryRegistry;
-import file.File;
 import file.RegularFile;
 import file.RegularFileOperator;
 import java.io.IOException;
@@ -13,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.Test;
 import path.MaldoPath;
+import path.PathRegistry;
 
 public class Integration {
   private static final MaldoFileSystem fs = MaldoFS.newFileSystem();
@@ -83,5 +83,21 @@ public class Integration {
 
     Files.delete(dirToRemove);
     assertThat(DirectoryRegistry.directoryExists(dirToRemove)).isFalse();
+  }
+
+  @Test
+  public void move() throws IOException {
+    Directory root = DirectoryRegistry.getDirectory(fs.getPath("/"));
+    MaldoPath filePath = fs.getPath("/toMove");
+    Files.createFile(filePath);
+    assertThat(root.contains(filePath)).isTrue();
+
+    MaldoPath destinationPath = fs.getPath("/one/two/toMove");
+    Files.move(filePath, destinationPath); //should create dirs
+    Directory destDir = DirectoryRegistry.getDirectory(destinationPath.getParent());
+
+    assertThat(root.contains(filePath)).isFalse();
+    assertThat(destDir.contains(destinationPath)).isTrue();
+    assertThat(PathRegistry.exists(filePath)).isFalse();
   }
 }

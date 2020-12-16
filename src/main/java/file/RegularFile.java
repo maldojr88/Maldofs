@@ -29,6 +29,10 @@ public class RegularFile extends File {
     return metaData.path;
   }
 
+  void setPath(MaldoPath newPath){
+    this.metaData.path = newPath;
+  }
+
   public void append(ByteBuffer src) {
     content.append(src.array());
     this.metaData.lastModified = LocalDateTime.now();

@@ -126,12 +126,19 @@ public class Directory extends File {
 
   public void addFile(File file){
     MaldoPath path = MaldoPath.convert(file.metaData.path);
-    checkArgument(!content.containsKey(path), "File already exists " + path.getCanonical());
+    String relativeName = path.getRelativeName();
+    checkArgument(content.keySet().stream().map(MaldoPath::getRelativeName)
+        .noneMatch(x -> x.equals(relativeName)),
+        "File already exists " + path.getCanonical());
     content.put(path, file);
   }
 
-  public void remove(MaldoPath targetPath) {
-    checkArgument(content.containsKey(targetPath), "Directory doesn't contain file to remove");
-    content.remove(targetPath);
+  public void remove(MaldoPath path) {
+    checkArgument(content.containsKey(path), "Directory doesn't contain file to remove");
+    content.remove(path);
+  }
+
+  public void resetPath(MaldoPath path) {
+    this.metaData.path = path;
   }
 }

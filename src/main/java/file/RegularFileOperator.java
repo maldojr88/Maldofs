@@ -36,6 +36,10 @@ public class RegularFileOperator {
     copy.append(ByteBuffer.wrap(sourceFile.readAll()));
   }
 
+  public void resetFilePath(RegularFile regularFile, MaldoPath newPath){
+    regularFile.setPath(newPath);
+  }
+
   public SeekableByteChannel createChannel(RegularFile file) {
     return new MaldoFileChannel(file);
   }

@@ -3,7 +3,6 @@ package path;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import core.MaldoFileSystem;
-import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,27 +10,32 @@ import java.util.Map;
  * Registry of all the paths known to the FS
  */
 public class PathRegistry {
-  private static final Map<String, MaldoPath> registry = new HashMap<>();
+  private static final Map<String, MaldoPath> REGISTRY = new HashMap<>();
 
   public static MaldoPath createPath(MaldoFileSystem fs, String canonical){
-    if (!registry.containsKey(canonical)){
-      registry.put(canonical, new MaldoPath(fs, canonical));
+    if (!REGISTRY.containsKey(canonical)){
+      REGISTRY.put(canonical, new MaldoPath(fs, canonical));
     }
 
-    return registry.get(canonical);
+    return REGISTRY.get(canonical);
   }
 
   public static MaldoPath get(String canonical){
-    checkArgument(registry.containsKey(canonical), "Path not found in registry");
-    return registry.get(canonical);
+    checkArgument(REGISTRY.containsKey(canonical), "Path not found in registry");
+    return REGISTRY.get(canonical);
   }
 
   public static boolean exists(MaldoPath path){
-    ensureIsDirectoryPath(path);
-    return registry.containsKey(path.getCanonical());
+    return REGISTRY.containsKey(path.getCanonical());
   }
 
   private static void ensureIsDirectoryPath(MaldoPath path) {
     checkArgument(path.isDirectory(),"Path must be a Directory");
+  }
+
+  public static void remove(MaldoPath path) {
+    String canonical = path.getCanonical();
+    checkArgument(REGISTRY.containsKey(canonical), "Path to remove not found");
+    REGISTRY.remove(canonical);
   }
 }

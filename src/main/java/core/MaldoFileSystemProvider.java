@@ -27,6 +27,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Map;
 import java.util.Set;
 import path.MaldoPath;
+import path.PathRegistry;
 
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
@@ -128,7 +129,30 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void move(Path source, Path target, CopyOption... options) throws IOException {
+    MaldoPath sourcePath = MaldoPath.convert(source);
+    MaldoPath targetPath = MaldoPath.convert(target);
+    validateMove(sourcePath,targetPath);
+    if(sourcePath.isDirectory()){
+      Directory sourceDir = DirectoryRegistry.getDirectory(sourcePath);
+      Directory sourceParentDir = DirectoryRegistry.getDirectory(sourcePath);
+      Directory targetParentDir = DirectoryRegistry.getDirectoryCreateIfNew(targetPath.getParent());
+      sourceDir.resetPath(targetPath);
+      targetParentDir.addFile(sourceDir);
+      sourceParentDir.remove(sourcePath);
+    }else{
+      Directory sourceDir = DirectoryRegistry.getFileDirectory(sourcePath);
+      Directory targetDir = DirectoryRegistry.getDirectoryCreateIfNew(targetPath.getParent());
+      RegularFile sourceFile = regularFileOperator.getRegularFile(sourcePath);
+      regularFileOperator.resetFilePath(sourceFile, targetPath);
+      targetDir.addFile(sourceFile);
+      sourceDir.remove(sourcePath);
+    }
+    PathRegistry.remove(sourcePath);
+  }
 
+  private void validateMove(MaldoPath sourcePath, MaldoPath targetPath) {
+    checkArgument(sourcePath.isDirectory() == targetPath.isDirectory(),
+        "Source and Target must be of the same type");
   }
 
   @Override
