@@ -49,12 +49,12 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
-    return null;
+    throw new UnsupportedOperationException("Use MaldoFS.newFileSystem() to create FS");
   }
 
   @Override
   public FileSystem getFileSystem(URI uri) {
-    return null;
+    return fs;
   }
 
   @Override
@@ -156,8 +156,9 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public boolean isSameFile(Path path, Path path2) throws IOException {
-    return false;
+  public boolean isSameFile(Path path1, Path path2) throws IOException {
+    //since MaldoPath's are singletons, must be the same reference
+    return MaldoPath.convert(path1) == MaldoPath.convert(path2);
   }
 
   @Override

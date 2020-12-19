@@ -5,6 +5,8 @@ import core.MaldoFileSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Run a REPL/Shell like interactive environment for working with the FileSystem
@@ -59,7 +61,20 @@ public class MaldoREPL {
   }
 
   private static void tokenizeAndExecute(String cmd) {
-    List<String> tokens = List.of(cmd.split(" "));
+    List<String> tokens = new ArrayList<>();
+    Matcher m = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(cmd);//Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(cmd);
+    while (m.find()) {
+      if (m.group(1) != null) {
+        // Add double-quoted string without the quotes
+        tokens.add(m.group(1));
+      } else if (m.group(2) != null) {
+        // Add single-quoted string without the quotes
+        tokens.add(m.group(2));
+      } else {
+        // Add unquoted word
+        tokens.add(m.group());
+      }
+    }
     String program = tokens.get(0);
     List<String> args = tokens.size() > 1 ? tokens.subList(1, tokens.size()) : new ArrayList<>();
 

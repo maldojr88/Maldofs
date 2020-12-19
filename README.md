@@ -29,14 +29,14 @@ Requirements
 ------
 - ~~Create FileSystem hierarchy with Paths~~
 - ~~Create interactive REPL/shell for the FileSystem~~
-- Load a file from the current FS into MaldoFS
 - ~~Create a file from a String or Binary in Java~~
+- ~~Copy, Move, Remove files and directories~~
+- Load a file from the current FS into MaldoFS
 - Save FS on Disk (Reload)
-- Copy, Move, Remove files and directories
 
 Demo
 ------
-Run the __*MaldoInteractive.java*__ main class to execute the REPL. As the REPL is initializing
+Run the __*MaldoREPL.java*__ main class to execute the REPL. As the REPL is initializing
 it creates basic Linux directories in root. Type "help" in the prompt to see the available commands.
 
 ```shell
@@ -44,32 +44,37 @@ it creates basic Linux directories in root. Type "help" in the prompt to see the
 home       tmp        sbin       etc        var        
 usr        opt        bin        dev        
 [MaldoFS] $ cd home
-[MaldoFS] $ ls
-maljos     
 [MaldoFS] $ pwd
 /home/
-[MaldoFS] $ cd ..
+[MaldoFS] $ ls
+maljos     
+[MaldoFS] $ cd maljos
+[MaldoFS] $ touch myfile.txt
+[MaldoFS] $ ls
+myfile.txt      
+[MaldoFS] $ echo 'hellooooWorld' >> myfile.txt
 [MaldoFS] $ ls -l
-drwxr-xr-x  root root 52 Nov 28 10:37 home
-drwxr-xr-x  root root 52 Nov 28 10:37 tmp
-drwxr-xr-x  root root 52 Nov 28 10:37 sbin
-drwxr-xr-x  root root 52 Nov 28 10:37 etc
-drwxr-xr-x  root root 52 Nov 28 10:37 var
-drwxr-xr-x  root root 52 Nov 28 10:37 usr
-drwxr-xr-x  root root 52 Nov 28 10:37 opt
-drwxr-xr-x  root root 52 Nov 28 10:37 bin
-drwxr-xr-x  root root 52 Nov 28 10:37 dev
+drwxr-xr-x  root root 13 Dec 19 12:06 myfile.txt
+[MaldoFS] $ mv myfile.txt otherfile
+[MaldoFS] $ ls
+otherfile       
+[MaldoFS] $ cp otherfile myfile.txt
+[MaldoFS] $ ls
+otherfile       myfile.txt      
+[MaldoFS] $ cat otherfile
+hellooooWorld
+[MaldoFS] $ cat myfile.txt
+hellooooWorld
 [MaldoFS] $ 
 ``` 
 
 Next Tasks
 ----
-- Implement operations on regular files        
-    - ~~Remove File~~  
-    - Move file
+- Implement operations on regular files 
     - Load Binary file from current OS
     - Simple text editor to update file?
-- Fix file permissions AND file size in "ls -l" 
+- I/O
+    - Finish implementing interfaces       
 - Clean up code
 - Unit tests  
 
