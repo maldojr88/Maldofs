@@ -8,16 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import path.MaldoPath;
 
 public class Directory extends File {
   private final Map<MaldoPath, File> content;
-
-  //doesn't really belong here
-  //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
-  public static final String ANSI_BLUE = "\u001B[34m";
-  public static final String ANSI_RESET = "\u001B[0m";
 
   Directory(MaldoPath path) {
     super(path);
@@ -89,14 +85,8 @@ public class Directory extends File {
     return ret;
   }
 
-  public List<String> getPrintableSimpleContents(){
-    List<String> ret = new ArrayList<>();
-    for (Entry<MaldoPath, File> e : content.entrySet()) {
-      MaldoPath path = e.getKey();
-      String decorator = e.getValue().isDirectory() ? ANSI_BLUE : "";
-      ret.add(decorator + path.getRelativeName() + ANSI_RESET);
-    }
-    return ret;
+  public Set<Entry<MaldoPath, File>> getContent(){
+    return content.entrySet();
   }
 
   public List<String> getPrintableDetailedContents(){

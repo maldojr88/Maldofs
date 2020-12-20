@@ -6,6 +6,7 @@ import core.MaldoFileSystem;
 import core.MaldoFileSystemProvider;
 import file.Directory;
 import file.DirectoryRegistry;
+import file.File;
 import file.RegularFile;
 import file.RegularFileOperator;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import path.MaldoPath;
 import path.PathRegistry;
@@ -30,6 +32,10 @@ public class InteractiveCmdRegistry {
   private final MaldoFileSystem fs;
   private final PathRegistry pathRegistry;
   private final RegularFileOperator regularFileOperator;
+
+  //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
+  public static final String ANSI_BLUE = "\u001B[34m";
+  public static final String ANSI_RESET = "\u001B[0m";
 
   public InteractiveCmdRegistry(MaldoFileSystem fs, RegularFileOperator regularFileOperator) {
     this.fs = fs;
@@ -238,7 +244,7 @@ public class InteractiveCmdRegistry {
   }
 
   private void lsStandard(Directory dir) {
-    List<String> printableContents = dir.getPrintableSimpleContents();
+    List<String> printableContents = getDirectoryPrintableSimpleContents(dir);
     int i=0;
     for(String str : printableContents){
       System.out.print(str + " ".repeat(20 - str.length()));
@@ -255,6 +261,16 @@ public class InteractiveCmdRegistry {
     for(String fileDetail :detailedContents){
       System.out.println(fileDetail);
     }
+  }
+
+  private List<String> getDirectoryPrintableSimpleContents(Directory dir){
+    List<String> ret = new ArrayList<>();
+    for (Entry<MaldoPath, File> e : dir.getContent()) {
+      MaldoPath path = e.getKey();
+      String decorator = e.getValue().isDirectory() ? ANSI_BLUE : "";
+      ret.add(decorator + path.getRelativeName() + ANSI_RESET);
+    }
+    return ret;
   }
 
   private void cd(List<String> args) {
