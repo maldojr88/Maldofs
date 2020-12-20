@@ -22,7 +22,7 @@ import path.PathRegistry;
 public class MaldoFileSystem extends FileSystem {
   private static Directory rootDir;
   private static Directory currentWorkingDir;
-  private final FileSystemProvider provider;
+  private final MaldoFileSystemProvider provider;
   private final RegularFileOperator regularFileOperator;
 
   public MaldoFileSystem(){
@@ -30,6 +30,10 @@ public class MaldoFileSystem extends FileSystem {
     currentWorkingDir = rootDir;
     provider = new MaldoFileSystemProvider(this);
     regularFileOperator = new RegularFileOperator();
+  }
+
+  public MaldoFileSystemProvider getProvider(){
+    return provider;
   }
 
   public Directory getCurrentWorkingDir(){

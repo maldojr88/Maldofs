@@ -9,6 +9,7 @@ public enum InteractiveCmd {
   MV("mv"),
   RM("rm"),
   LS("ls"),
+  VIM("vim"),
   CAT("cat"),
   PWD("pwd"),
   EXIT("exit"),

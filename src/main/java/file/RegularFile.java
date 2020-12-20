@@ -38,6 +38,11 @@ public class RegularFile extends File {
     this.metaData.lastModified = LocalDateTime.now();
   }
 
+  public void writeAll(byte[] arr){
+    content.truncate();
+    append(ByteBuffer.wrap(arr));
+  }
+
   public byte[] readAll(){
     return content.readAll();
   }

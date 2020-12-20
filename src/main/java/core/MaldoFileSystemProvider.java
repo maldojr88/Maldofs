@@ -42,6 +42,10 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
     return DirectoryRegistry.getDirectoryCreateIfNew(path);
   }
 
+  public RegularFileOperator getRegularFileOperator(){
+    return regularFileOperator;
+  }
+
   @Override
   public String getScheme() {
     return null;

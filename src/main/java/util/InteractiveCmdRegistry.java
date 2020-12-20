@@ -8,8 +8,10 @@ import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,13 +28,15 @@ public class InteractiveCmdRegistry {
     this.fs = fs;
   }
 
-  public void executeCommand(String identifier, List<String> args) throws IOException {
+  public void executeCommand(String identifier, List<String> args)
+      throws IOException, InterruptedException {
     switch (InteractiveCmd.get(identifier)) {
       case CD     -> cd(args);
       case CP     -> cp(args);
       case MV     -> mv(args);
       case RM     -> rm(args);
       case LS     -> ls(args);
+      case VIM    -> vim(args);
       case CAT    -> cat(args);
       case PWD    -> pwd(args);
       case EXIT   -> goodbye();
@@ -42,6 +46,42 @@ public class InteractiveCmdRegistry {
       case TOUCH  -> touch(args);
       default -> System.out.println("Unknown command!!!");
     }
+  }
+
+  /**
+   * Cheap way to allow text editing
+   */
+  private void vim(List<String> args) throws IOException, InterruptedException {
+    checkArgument(args.size() == 1, "Only 1 expected arg");
+    checkArgument(System.getProperty("os.name").equals("Mac OS X"),
+        "Text Editor is only supported on MacOS");
+    MaldoPath maldoPath = getAbsolutePathExists(args.get(0));
+    Directory maldoDir = DirectoryRegistry.getDirectory(maldoPath.getParent());
+    Path unixPath = Files.createTempFile("maldoFSvim", null);
+    RegularFile regularFile;
+    if(maldoDir.contains(maldoPath)){//Existing file
+       regularFile = maldoDir.getRegularFile(maldoPath);
+      Files.write(unixPath, regularFile.readAll());
+    }else{
+      regularFile = fs.getProvider().getRegularFileOperator()
+          .createFile(maldoPath, new HashSet<>());
+    }
+
+    openTextEditor(unixPath);
+
+    byte[] bytes = Files.readAllBytes(unixPath);
+    regularFile.writeAll(bytes);
+    Files.delete(unixPath);
+  }
+
+  private void openTextEditor(Path unixPath) throws IOException, InterruptedException {
+    String[] terminalArgs = {"/usr/bin/open", "-eW", unixPath.toFile().getAbsolutePath()};
+    ProcessBuilder editor = new ProcessBuilder(terminalArgs);
+    editor.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+    editor.redirectError(ProcessBuilder.Redirect.INHERIT);
+    editor.redirectInput(ProcessBuilder.Redirect.INHERIT);
+    Process p = editor.start();
+    p.waitFor();
   }
 
   private void mv(List<String> args) throws IOException {

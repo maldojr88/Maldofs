@@ -35,6 +35,10 @@ public class StorageContainer {
     buffer.put(toAppend);
   }
 
+  public void truncate(){
+    buffer.clear();
+  }
+
   public byte[] readAll() {
     int size = buffer.position();
     return Arrays.copyOfRange(buffer.array(), 0, size);
