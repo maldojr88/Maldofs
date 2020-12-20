@@ -31,6 +31,7 @@ Requirements
 - ~~Create interactive REPL/shell for the FileSystem~~
 - ~~Create a file from a String or Binary in Java~~
 - ~~Copy, Move, Remove files and directories~~
+- ~~Text Editor support~~
 - Load a file from the current FS into MaldoFS
 - Save FS on Disk (Reload)
 
@@ -72,7 +73,6 @@ Next Tasks
 ----
 - Implement operations on regular files 
     - Load Binary file from current OS
-    - Simple text editor to update file?
 - I/O
     - Finish implementing interfaces       
 - Clean up code
