@@ -17,7 +17,6 @@ Tools to Learn
 - Java Flight Recorder (when ready)
 - Microbenchmarking (when ready)
 - ArchUnit
-- Dagger (NOT APPLICABLE)
 
 Libraries to Learn
 ---------
@@ -66,15 +65,16 @@ otherfile       myfile.txt
 hellooooWorld
 [MaldoFS] $ cat myfile.txt
 hellooooWorld
+[MaldoFS] $ vim myfile.txt
 [MaldoFS] $ 
 ``` 
 
 Next Tasks
 ----
-- Implement operations on regular files 
-    - Load Binary file from current OS
+- Import File from native OS
 - I/O
-    - Finish implementing interfaces       
+    - Finish implementing interfaces    
+- TODOs       
 - Clean up code
 - Unit tests  
 
@@ -82,5 +82,5 @@ Future Enhancements
 --------
 - File Permissions
 - Concurrency
-- Load to Disk
-- Recreate from Disk
+- Export FS to Disk
+- Import FS from Disk

@@ -16,7 +16,6 @@ public class MaldoREPL {
   private static final String PROMPT = "[MaldoFS] $ ";
   private static final String EXIT = "exit";
   private static final boolean DEBUG_MODE = true;
-  private static final List<String> HISTORY = new ArrayList<>();
   private static MaldoFileSystem fs;
   private static InteractiveCmdRegistry registry;
 
@@ -57,14 +56,13 @@ public class MaldoREPL {
         System.out.println("====> no command typed");
         continue;
       }
-      HISTORY.add(userInput);
       tokenizeAndExecute(userInput);
     }
   }
 
-  private static void tokenizeAndExecute(String cmd) {
+  private static void tokenizeAndExecute(String userInput) {
     List<String> tokens = new ArrayList<>();
-    Matcher m = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(cmd);
+    Matcher m = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(userInput);
     while (m.find()) {
       if (m.group(1) != null) {
         // Add double-quoted string without the quotes
@@ -80,12 +78,12 @@ public class MaldoREPL {
     String program = tokens.get(0);
     List<String> args = tokens.size() > 1 ? tokens.subList(1, tokens.size()) : new ArrayList<>();
 
-    executeCommand(program, args);
+    executeCommand(userInput, program, args);
   }
 
-  private static void executeCommand(String program, List<String> args) {
+  private static void executeCommand(String userInput, String program, List<String> args) {
     try {
-      registry.executeCommand(program,args);
+      registry.executeCommand(userInput,program,args);
     } catch (Exception e) {
       if (DEBUG_MODE) {
         System.out.println(e.getMessage());

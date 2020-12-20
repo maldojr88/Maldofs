@@ -8,9 +8,9 @@ import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,31 +22,41 @@ import path.MaldoPath;
  */
 public class InteractiveCmdRegistry {
 
+  private static final List<String> HISTORY = new ArrayList<>();
+  public static final int DEFAULT_HISTORY_COUNT = 10;
   private final MaldoFileSystem fs;
 
   public InteractiveCmdRegistry(MaldoFileSystem fs) {
     this.fs = fs;
   }
 
-  public void executeCommand(String identifier, List<String> args)
+  public void executeCommand(String userInput, String identifier, List<String> args)
       throws IOException, InterruptedException {
     switch (InteractiveCmd.get(identifier)) {
-      case CD     -> cd(args);
-      case CP     -> cp(args);
-      case MV     -> mv(args);
-      case RM     -> rm(args);
-      case LS     -> ls(args);
-      case VIM    -> vim(args);
-      case CAT    -> cat(args);
-      case PWD    -> pwd(args);
-      case EXIT   -> goodbye();
-      case ECHO   -> echo(args);
-      case HELP   -> help();
-      case MKDIR  -> mkdir(args);
-      case TOUCH  -> touch(args);
-      case UNKNOWN -> throw new UnsupportedOperationException("Invalid command");
+      case CD       -> cd(args);
+      case CP       -> cp(args);
+      case MV       -> mv(args);
+      case RM       -> rm(args);
+      case LS       -> ls(args);
+      case VIM      -> vim(args);
+      case CAT      -> cat(args);
+      case PWD      -> pwd(args);
+      case EXIT     -> goodbye();
+      case ECHO     -> echo(args);
+      case HELP     -> help();
+      case MKDIR    -> mkdir(args);
+      case TOUCH    -> touch(args);
+      case HISTORY  -> history(args);
+      case UNKNOWN  -> throw new UnsupportedOperationException("Invalid command");
       default -> System.out.println("???!!!");
     }
+    HISTORY.add(userInput);
+  }
+
+  private void history(List<String> args) {
+    checkArgument(args.size() <= 1, "Only 1 argument expected");
+    int count = args.size() == 1 ? Integer.parseInt(args.get(0)) : DEFAULT_HISTORY_COUNT;
+    HISTORY.stream().skip(HISTORY.size() - count).forEach(System.out::println);
   }
 
   /**
