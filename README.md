@@ -75,7 +75,6 @@ nfs.conf
 
 Next Tasks
 ----
-- Support for larger files
 - Different types of file storage (string, binary)
 - I/O
     - Finish implementing interfaces    
