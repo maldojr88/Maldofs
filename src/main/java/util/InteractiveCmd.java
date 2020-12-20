@@ -19,6 +19,7 @@ public enum InteractiveCmd {
   HELP("help"),
   MKDIR("mkdir"),
   TOUCH("touch"),
+  IMPORT("import"),
   HISTORY("history"),
   UNKNOWN("N/A");
 
