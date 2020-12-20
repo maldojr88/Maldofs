@@ -29,13 +29,13 @@ public class InteractiveCmdRegistry {
 
   private static final List<String> HISTORY = new ArrayList<>();
   public static final int DEFAULT_HISTORY_COUNT = 10;
-  private final MaldoFileSystem fs;
-  private final PathRegistry pathRegistry;
-  private final RegularFileOperator regularFileOperator;
-
   //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
   public static final String ANSI_BLUE = "\u001B[34m";
   public static final String ANSI_RESET = "\u001B[0m";
+
+  private final MaldoFileSystem fs;
+  private final PathRegistry pathRegistry;
+  private final RegularFileOperator regularFileOperator;
 
   public InteractiveCmdRegistry(MaldoFileSystem fs, RegularFileOperator regularFileOperator) {
     this.fs = fs;

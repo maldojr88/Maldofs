@@ -11,12 +11,12 @@ import java.util.Arrays;
  */
 public class StorageContainer extends MaldoFileStoreAbstract {
 
-  private static final int CAPACITY = 1024;
+  private static final int INIT_CAPACITY = 100;
   private final ContentType contentType;
   ByteBuffer buffer;
 
   StorageContainer(ContentType contentType){
-    buffer = ByteBuffer.allocate(CAPACITY);
+    buffer = ByteBuffer.allocate(INIT_CAPACITY);
     this.contentType = contentType;
   }
 
@@ -36,7 +36,32 @@ public class StorageContainer extends MaldoFileStoreAbstract {
    */
 
   public void append(byte[] toAppend) {
+    if(needMoreSpace(toAppend.length)){
+      allocateSpace(toAppend.length);
+    }
     buffer.put(toAppend);
+  }
+
+  private boolean needMoreSpace(int toAdd) {
+    return buffer.remaining() - toAdd < 0;
+  }
+
+  private void allocateSpace(int lengthToAdd) {
+    int expandLength = expandBy(lengthToAdd + buffer.capacity());
+    ByteBuffer newBuffer = ByteBuffer.allocate(expandLength);
+    newBuffer.put(buffer.array());
+    buffer = newBuffer;
+  }
+
+  /**
+   * Expand by a power of 2
+   */
+  private int expandBy(int value){
+    int highestOneBit = Integer.highestOneBit(value);
+    if (value == highestOneBit) {
+      return value;
+    }
+    return highestOneBit << 1;
   }
 
   public void truncate(){
@@ -66,6 +91,6 @@ public class StorageContainer extends MaldoFileStoreAbstract {
 
   @Override
   public long getUnallocatedSpace() throws IOException {
-    return CAPACITY - buffer.position();
+    return buffer.remaining();
   }
 }

@@ -39,6 +39,7 @@ public class MaldoREPL {
         "mkdir /etc/",
         "import /etc/nfs.conf /etc/nfs.conf",
         "import /etc/locate.rc /etc/locate.rc",
+        "import /etc/man.conf /etc/man.conf",
         "mkdir /opt/",
         "mkdir /bin",
         "mkdir /sbin",
