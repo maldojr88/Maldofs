@@ -95,13 +95,19 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void delete(Path path) throws IOException {
-    //TODO - prevent deleting root
     MaldoPath targetPath = MaldoPath.convert(path);
+    preventRootDeletion(targetPath);
     Directory dir = DirectoryRegistry.getDirectory(targetPath.getParent());
     dir.remove(targetPath);
 
     if(targetPath.isDirectory()){
       DirectoryRegistry.remove(targetPath);
+    }
+  }
+
+  private void preventRootDeletion(MaldoPath targetPath) throws IOException {
+    if(targetPath.getCanonical().equals("/")){
+      throw new IOException("Can't delete root directory");
     }
   }
 
