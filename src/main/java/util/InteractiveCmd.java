@@ -1,7 +1,10 @@
 package util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.checkerframework.shaded.dataflow.analysis.FlowExpressions.Unknown;
 
 public enum InteractiveCmd {
   CD("cd"),
@@ -16,14 +19,20 @@ public enum InteractiveCmd {
   ECHO("echo"),
   HELP("help"),
   MKDIR("mkdir"),
-  TOUCH("touch");
+  TOUCH("touch"),
+  UNKNOWN("N/A");
+
 
   private static final Map<String, InteractiveCmd> lookup = new HashMap<>();
+  private static final List<InteractiveCmd> validCommands = new ArrayList<>();
   private final String identifier;
 
   static {
     for(InteractiveCmd cmd : InteractiveCmd.values()) {
       lookup.put(cmd.identifier, cmd);
+      if(!cmd.equals(UNKNOWN)){
+        validCommands.add(cmd);
+      }
     }
   }
 
@@ -36,6 +45,13 @@ public enum InteractiveCmd {
   }
 
   public static InteractiveCmd get(String id) {//reverse lookup
+    if(!lookup.containsKey(id)){
+      return UNKNOWN;
+    }
     return lookup.get(id);
+  }
+
+  public static List<InteractiveCmd> getValidCommands(){
+    return validCommands;
   }
 }

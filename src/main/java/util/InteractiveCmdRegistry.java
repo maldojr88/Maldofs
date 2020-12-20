@@ -44,7 +44,8 @@ public class InteractiveCmdRegistry {
       case HELP   -> help();
       case MKDIR  -> mkdir(args);
       case TOUCH  -> touch(args);
-      default -> System.out.println("Unknown command!!!");
+      case UNKNOWN -> throw new UnsupportedOperationException("Invalid command");
+      default -> System.out.println("???!!!");
     }
   }
 
@@ -55,7 +56,7 @@ public class InteractiveCmdRegistry {
     checkArgument(args.size() == 1, "Only 1 expected arg");
     checkArgument(System.getProperty("os.name").equals("Mac OS X"),
         "Text Editor is only supported on MacOS");
-    MaldoPath maldoPath = getAbsolutePathExists(args.get(0));
+    MaldoPath maldoPath = getAbsolutePathSmart(args.get(0));
     Directory maldoDir = DirectoryRegistry.getDirectory(maldoPath.getParent());
     Path unixPath = Files.createTempFile("maldoFSvim", null);
     RegularFile regularFile;
@@ -81,7 +82,11 @@ public class InteractiveCmdRegistry {
     editor.redirectError(ProcessBuilder.Redirect.INHERIT);
     editor.redirectInput(ProcessBuilder.Redirect.INHERIT);
     Process p = editor.start();
+    String openMsg =
+        "--> Must close the Editor before coming back (The program, not just the document)";
+    System.out.print(openMsg);
     p.waitFor();
+    System.out.print("\b".repeat(openMsg.length()));
   }
 
   private void mv(List<String> args) throws IOException {
@@ -128,6 +133,18 @@ public class InteractiveCmdRegistry {
   }
 
   /**
+   *
+   */
+  public MaldoPath getAbsolutePathSmart(String path){
+    MaldoPath existingFilePath = getAbsolutePathExists(path);
+    if(existingFilePath != null){
+      return existingFilePath;
+    }
+
+    return getAbsolutePathNotExists(path, false);
+  }
+
+  /**
    * Get the absolute path for a path which should exist
    */
   private MaldoPath getAbsolutePathExists(String path){
@@ -153,7 +170,7 @@ public class InteractiveCmdRegistry {
 
   private void help() {
     System.out.println("Available commands:");
-    for (InteractiveCmd command : InteractiveCmd.values()) {
+    for (InteractiveCmd command : InteractiveCmd.getValidCommands()) {
       System.out.printf("\t%s%n", command.getIdentifier());
     }
   }
