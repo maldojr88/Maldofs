@@ -31,7 +31,7 @@ Requirements
 - ~~Create a file from a String or Binary in Java~~
 - ~~Copy, Move, Remove files and directories~~
 - ~~Text Editor support~~
-- Load a file from the current FS into MaldoFS
+- ~~Load a file from the current FS into MaldoFS~~
 - Save FS on Disk (Reload)
 
 Demo
@@ -66,12 +66,17 @@ hellooooWorld
 [MaldoFS] $ cat myfile.txt
 hellooooWorld
 [MaldoFS] $ vim myfile.txt
-[MaldoFS] $ 
+[MaldoFS] $ import /etc/nfs.conf /etc/nfs.conf
+[MaldoFS] $ ls /etc
+nfs.conf
+[MaldoFS] $ export /home/maljos/myfile.txt /tmp/myfile.txt
+[MaldoFS] $
 ``` 
 
 Next Tasks
 ----
-- Import File from native OS
+- Support for larger files
+- Export file to native OS
 - I/O
     - Finish implementing interfaces    
 - TODOs       

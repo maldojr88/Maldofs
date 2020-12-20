@@ -20,6 +20,7 @@ public enum InteractiveCmd {
   MKDIR("mkdir"),
   TOUCH("touch"),
   IMPORT("import"),
+  EXPORT("export"),
   HISTORY("history"),
   UNKNOWN("N/A");
 

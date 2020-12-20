@@ -16,6 +16,7 @@ import path.PathRegistry;
 
 public class Integration {
   private static final MaldoFileSystem fs = MaldoFS.newFileSystem();
+  private static final PathRegistry pathRegistry = fs.getPathRegistry();
 
   @Test
   public void basicCreateDirectory() throws IOException {
@@ -98,6 +99,6 @@ public class Integration {
 
     assertThat(root.contains(filePath)).isFalse();
     assertThat(destDir.contains(destinationPath)).isTrue();
-    assertThat(PathRegistry.exists(filePath)).isFalse();
+    assertThat(pathRegistry.exists(filePath)).isFalse();
   }
 }

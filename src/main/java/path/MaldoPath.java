@@ -223,7 +223,7 @@ public class MaldoPath implements Path {
       pathChain.add(MaldoFileSystem.getRootDir());
       for (String split : splits.stream().limit(splits.size() - 1).collect(Collectors.toList())) {
         sb.append(split).append("/");
-        pathChain.add(PathRegistry.createPath(maldoFs, sb.toString()));
+        pathChain.add(maldoFs.getPathRegistry().createPath(sb.toString()));
       }
     }
   }

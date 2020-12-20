@@ -22,7 +22,7 @@ public class MaldoREPL {
 
   public static void main(String[] args) {
     fs = MaldoFS.newFileSystem();
-    registry = new InteractiveCmdRegistry(fs);
+    registry = new InteractiveCmdRegistry(fs, fs.getProvider().getRegularFileOperator());
     createUnixLikeDirs();
     startREPL();
   }

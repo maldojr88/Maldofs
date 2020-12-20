@@ -7,6 +7,7 @@ import core.MaldoFileSystemProvider;
 import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
+import file.RegularFileOperator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import path.MaldoPath;
+import path.PathRegistry;
 
 /**
  * Shell commands available for Interactive Shell
@@ -26,9 +28,13 @@ public class InteractiveCmdRegistry {
   private static final List<String> HISTORY = new ArrayList<>();
   public static final int DEFAULT_HISTORY_COUNT = 10;
   private final MaldoFileSystem fs;
+  private final PathRegistry pathRegistry;
+  private final RegularFileOperator regularFileOperator;
 
-  public InteractiveCmdRegistry(MaldoFileSystem fs) {
+  public InteractiveCmdRegistry(MaldoFileSystem fs, RegularFileOperator regularFileOperator) {
     this.fs = fs;
+    this.pathRegistry = fs.getPathRegistry();
+    this.regularFileOperator = regularFileOperator;
   }
 
   public void executeCommand(String userInput, String identifier, List<String> args)
@@ -48,6 +54,7 @@ public class InteractiveCmdRegistry {
       case MKDIR    -> mkdir(args);
       case TOUCH    -> touch(args);
       case IMPORT   -> imp0rt(args);
+      case EXPORT   -> export(args);
       case HISTORY  -> history(args);
       case UNKNOWN  -> throw new UnsupportedOperationException("Invalid command");
       default -> System.out.println("???!!!");
@@ -55,6 +62,21 @@ public class InteractiveCmdRegistry {
     HISTORY.add(userInput);
   }
 
+  /**
+   * Export a file from MaldoFS into the native OS
+   */
+  private void export(List<String> args) throws IOException {
+    checkArgument(args.size() == 2, "2 arguments expected");
+    checkOS();
+    MaldoPath maldoPath = pathRegistry.getAbsolutePathExists(args.get(0));
+    Path unixPath = Paths.get(args.get(1));
+    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
+    Files.write(unixPath, regularFile.readAll());
+  }
+
+  /**
+   * Import a file from the native OS into MaldoFS
+   */
   private void imp0rt(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "2 arguments expected");
     checkOS();
@@ -62,8 +84,7 @@ public class InteractiveCmdRegistry {
     MaldoPath maldoPath = fs.getPath(args.get(1));
     byte[] bytes = Files.readAllBytes(unixPath);
     Files.createFile(maldoPath);
-    Directory maldoDir = DirectoryRegistry.getDirectory(maldoPath.getParent());
-    RegularFile regularFile = maldoDir.getRegularFile(maldoPath);
+    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
     regularFile.writeAll(bytes);
   }
 
@@ -79,7 +100,7 @@ public class InteractiveCmdRegistry {
   private void vim(List<String> args) throws IOException, InterruptedException {
     checkArgument(args.size() == 1, "Only 1 expected arg");
     checkOS();
-    MaldoPath maldoPath = getAbsolutePathSmart(args.get(0));
+    MaldoPath maldoPath = pathRegistry.getAbsolutePathSmart(args.get(0));
     Directory maldoDir = DirectoryRegistry.getDirectory(maldoPath.getParent());
     Path unixPath = Files.createTempFile("maldoFSvim", null);
     RegularFile regularFile;
@@ -87,8 +108,7 @@ public class InteractiveCmdRegistry {
        regularFile = maldoDir.getRegularFile(maldoPath);
       Files.write(unixPath, regularFile.readAll());
     }else{
-      regularFile = fs.getProvider().getRegularFileOperator()
-          .createFile(maldoPath, new HashSet<>());
+      regularFile = regularFileOperator.createFile(maldoPath, new HashSet<>());
     }
 
     openTextEditor(unixPath);
@@ -96,11 +116,6 @@ public class InteractiveCmdRegistry {
     byte[] bytes = Files.readAllBytes(unixPath);
     regularFile.writeAll(bytes);
     Files.delete(unixPath);
-  }
-
-  private void checkOS() {
-    checkArgument(System.getProperty("os.name").equals("Mac OS X"),
-        "Text Editor is only supported on MacOS");
   }
 
   private void openTextEditor(Path unixPath) throws IOException, InterruptedException {
@@ -121,8 +136,8 @@ public class InteractiveCmdRegistry {
     checkArgument(args.size() == 2, "2 arguments expected (source, target)");
     String sourceStr = args.get(0);
     String targetStr = args.get(1);
-    MaldoPath source = getAbsolutePathExists(sourceStr);
-    Optional<MaldoPath> localPath = localDirRefereence(targetStr);
+    MaldoPath source = pathRegistry.getAbsolutePathExists(sourceStr);
+    Optional<MaldoPath> localPath = pathRegistry.localDirReference(targetStr);
 
     MaldoPath target;
     if(localPath.isPresent()){//mv myfile etc
@@ -131,32 +146,21 @@ public class InteractiveCmdRegistry {
         target = fs.getPath(target.getCanonical() + source.getRelativeName());
       }
     }else{
-      target = getAbsolutePathNotExists(targetStr, source.isDirectory());
+      target = pathRegistry.getAbsolutePathNotExists(targetStr, source.isDirectory());
     }
     Files.move(source, target);
   }
 
-  /**
-   * If path refers to something local in the current working dir, that takes precedence
-   */
-  public Optional<MaldoPath> localDirRefereence(String path){
-    Map<String, MaldoPath> relativeNameToPath = fs.getCurrentWorkingDir().getRelativeNameToPath();
-    if(relativeNameToPath.containsKey(path)){
-      return Optional.of(relativeNameToPath.get(path));
-    }
-    return Optional.empty();
-  }
-
   private void rm(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Only 1 arguments - target");
-    MaldoPath target = getAbsolutePathExists(args.get(0));
+    MaldoPath target = pathRegistry.getAbsolutePathExists(args.get(0));
     Files.delete(target);
   }
 
   private void cp(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "2 arguments expected (source, target)");
-    MaldoPath source = getAbsolutePathExists(args.get(0));
-    MaldoPath target = getAbsolutePathNotExists(args.get(1), source.isDirectory());
+    MaldoPath source = pathRegistry.getAbsolutePathExists(args.get(0));
+    MaldoPath target = pathRegistry.getAbsolutePathNotExists(args.get(1), source.isDirectory());
     Files.copy(source, target);
   }
 
@@ -174,9 +178,10 @@ public class InteractiveCmdRegistry {
     RegularFile regularFile;
     if(filename.startsWith("/")){
       MaldoPath path = fs.getPath(filename);
-      MaldoPath dirPath = path.getParent();
-      dir = DirectoryRegistry.getDirectory(dirPath);
-      regularFile = dir.getRegularFile(path);
+      regularFile = regularFileOperator.getRegularFile(path);
+      //MaldoPath dirPath = path.getParent();
+      //dir = DirectoryRegistry.getDirectory(dirPath);
+      //regularFile = dir.getRegularFile(path);
 
     }else{
       MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
@@ -196,7 +201,7 @@ public class InteractiveCmdRegistry {
     }else if(args.size() == 3){//echo 'hello' >> myFile.txt
       checkArgument(args.get(1).equals(">>"), "Expected '>>' as second argument");
       String filename = args.get(2);
-      MaldoPath filePath = getAbsolutePathExists(filename);
+      MaldoPath filePath = pathRegistry.getAbsolutePathExists(filename);
       Files.write(filePath, strToEcho.getBytes());
     }else {
       throw new RuntimeException("Wrong number of arguments passed");
@@ -206,7 +211,7 @@ public class InteractiveCmdRegistry {
   private void touch(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Too many arguments");
     String filename = args.get(0);
-    MaldoPath newFilePath = getAbsolutePathNotExists(filename, false);
+    MaldoPath newFilePath = pathRegistry.getAbsolutePathNotExists(filename, false);
     Files.createFile(newFilePath);
   }
 
@@ -225,11 +230,11 @@ public class InteractiveCmdRegistry {
     if(args.isEmpty()){
       lsStandard(fs.getCurrentWorkingDir());
     } else if(args.size() == 2){//ls -l /somedir
-      lsDetailed(DirectoryRegistry.getDirectory(fs.getPath(dirAppend(args.get(1)))));
+      lsDetailed(DirectoryRegistry.getDirectory(fs.getPath(pathRegistry.dirAppend(args.get(1)))));
     } else{
       String arg = args.get(0);
       if(arg.startsWith("/")){//ls /home
-        lsStandard(DirectoryRegistry.getDirectory(fs.getPath(dirAppend(arg))));
+        lsStandard(DirectoryRegistry.getDirectory(fs.getPath(pathRegistry.dirAppend(arg))));
       }else{// ls -l
         lsDetailed(fs.getCurrentWorkingDir());
       }
@@ -269,7 +274,7 @@ public class InteractiveCmdRegistry {
       if(relativeNameToPath.containsKey(desiredDir)){
         desiredPath = relativeNameToPath.get(desiredDir);//relative path
       }else{
-        desiredPath = fs.getPath(dirAppend(desiredDir));//absolute path
+        desiredPath = fs.getPath(pathRegistry.dirAppend(desiredDir));//absolute path
       }
     }
 
@@ -280,53 +285,13 @@ public class InteractiveCmdRegistry {
   private void mkdir(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Invalid - expected 'mkdir <>'");
     String newDirName = args.get(0);
-    MaldoPath path = getAbsolutePathNotExists(newDirName, true);
+    MaldoPath path = pathRegistry.getAbsolutePathNotExists(newDirName, true);
     Files.createDirectory(path);
   }
 
-  /**
-   * Attempt to get an existing file, if it doesn't exist, get Path for a file that doesn't exist
-   */
-  public MaldoPath getAbsolutePathSmart(String path){
-    MaldoPath existingFilePath = getAbsolutePathExists(path);
-    if(existingFilePath != null){
-      return existingFilePath;
-    }
 
-    return getAbsolutePathNotExists(path, false);
-  }
-
-  /**
-   * Get the absolute path for a path which should exist
-   */
-  private MaldoPath getAbsolutePathExists(String path){
-    if(path.startsWith("/")){
-      return fs.getPath(path);
-    }else{
-      Directory dir = DirectoryRegistry.getDirectory(fs.getCurrentWorkingDir().getPath());
-      return dir.getRelativeNameToPath().get(path);
-    }
-  }
-
-  /**
-   * Get the absolute path for a path which does not exist yet
-   */
-  private MaldoPath getAbsolutePathNotExists(String path, boolean isDirectory){
-    if(path.startsWith("/")){
-      if(isDirectory){
-        path = dirAppend(path);
-      }
-      return fs.getPath(path);
-    }else{
-      String append = isDirectory ? "/" : "";
-      return fs.getPath(fs.getCurrentWorkingDir().getPath().getCanonical() + path + append);
-    }
-  }
-
-  private String dirAppend(String str){
-    if(!str.endsWith("/")){
-      str = str + "/";
-    }
-    return str;
+  private void checkOS() {
+    checkArgument(System.getProperty("os.name").equals("Mac OS X"),
+        "Text Editor is only supported on MacOS");
   }
 }

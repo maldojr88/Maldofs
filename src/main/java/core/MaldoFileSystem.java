@@ -24,9 +24,11 @@ public class MaldoFileSystem extends FileSystem {
   private static Directory currentWorkingDir;
   private final MaldoFileSystemProvider provider;
   private final RegularFileOperator regularFileOperator;
+  private final PathRegistry pathRegistry;
 
   public MaldoFileSystem(){
-    rootDir = DirectoryRegistry.getDirectoryCreateIfNew(PathRegistry.createPath(this, "/"));
+    pathRegistry = new PathRegistry(this);
+    rootDir = DirectoryRegistry.getDirectoryCreateIfNew(pathRegistry.createPath("/"));
     currentWorkingDir = rootDir;
     provider = new MaldoFileSystemProvider(this);
     regularFileOperator = new RegularFileOperator();
@@ -34,6 +36,10 @@ public class MaldoFileSystem extends FileSystem {
 
   public MaldoFileSystemProvider getProvider(){
     return provider;
+  }
+
+  public PathRegistry getPathRegistry(){
+    return pathRegistry;
   }
 
   public Directory getCurrentWorkingDir(){
@@ -49,7 +55,7 @@ public class MaldoFileSystem extends FileSystem {
   }
 
   public MaldoPath getPath(String path){
-    return PathRegistry.createPath(this, path);
+    return pathRegistry.createPath(path);
   }
 
   public File getFile(MaldoPath path){

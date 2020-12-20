@@ -33,9 +33,11 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private final MaldoFileSystem fs;
   private RegularFileOperator regularFileOperator = new RegularFileOperator();
+  private PathRegistry pathRegistry;
 
   public MaldoFileSystemProvider(MaldoFileSystem fs){
     this.fs = fs;
+    this.pathRegistry = fs.getPathRegistry();
   }
 
   public Directory getDirectory(MaldoPath path){
@@ -151,7 +153,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
       targetDir.addFile(sourceFile);
       sourceDir.remove(sourcePath);
     }
-    PathRegistry.remove(sourcePath);
+    pathRegistry.remove(sourcePath);
   }
 
   private void validateMove(MaldoPath sourcePath, MaldoPath targetPath) {
