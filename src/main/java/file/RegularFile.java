@@ -6,13 +6,17 @@ import path.MaldoPath;
 import storage.StorageContainer;
 
 public class RegularFile extends File {
-  private final ContentType type;
+  private final ContentType contentType;
   private final StorageContainer content;
 
-  public RegularFile(ContentType type, MaldoPath path){
+  private RegularFile(ContentType type, MaldoPath path){
     super(path);
-    this.type = type;
-    content = new StorageContainer();
+    this.contentType = type;
+    content = path.getFileSystem().getStoragePool().createContainer(path,contentType);
+  }
+
+  public static RegularFile create(ContentType type, MaldoPath path){
+    return new RegularFile(type,path);
   }
 
   @Override

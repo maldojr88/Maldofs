@@ -26,7 +26,7 @@ public class RegularFileOperator {
   public RegularFile createFile(MaldoPath path, Set<? extends OpenOption> options,
       FileAttribute<?>... attrs) {
     Directory directory = DirectoryRegistry.getFileDirectory(path);
-    RegularFile file = new RegularFile(ContentType.STRING, path);
+    RegularFile file = RegularFile.create(ContentType.STRING, path);
     directory.addFile(file);
     return file;
   }

@@ -15,6 +15,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 import path.MaldoPath;
 import path.PathRegistry;
+import storage.StoragePool;
 
 /**
  * Core functionality of the filesystem bringing everything together
@@ -25,6 +26,7 @@ public class MaldoFileSystem extends FileSystem {
   private final MaldoFileSystemProvider provider;
   private final RegularFileOperator regularFileOperator;
   private final PathRegistry pathRegistry;
+  private final StoragePool storagePool;
 
   public MaldoFileSystem(){
     pathRegistry = new PathRegistry(this);
@@ -32,10 +34,15 @@ public class MaldoFileSystem extends FileSystem {
     currentWorkingDir = rootDir;
     provider = new MaldoFileSystemProvider(this);
     regularFileOperator = new RegularFileOperator();
+    storagePool = new StoragePool();
   }
 
   public MaldoFileSystemProvider getProvider(){
     return provider;
+  }
+
+  public StoragePool getStoragePool(){
+    return storagePool;
   }
 
   public PathRegistry getPathRegistry(){
@@ -98,8 +105,7 @@ public class MaldoFileSystem extends FileSystem {
 
   @Override
   public Iterable<FileStore> getFileStores() {
-    return null;
-    //TODO
+    return storagePool.getAll();
   }
 
   @Override

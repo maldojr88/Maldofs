@@ -32,8 +32,8 @@ import path.PathRegistry;
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private final MaldoFileSystem fs;
-  private RegularFileOperator regularFileOperator = new RegularFileOperator();
-  private PathRegistry pathRegistry;
+  private final RegularFileOperator regularFileOperator = new RegularFileOperator();
+  private final PathRegistry pathRegistry;
 
   public MaldoFileSystemProvider(MaldoFileSystem fs){
     this.fs = fs;

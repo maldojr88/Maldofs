@@ -5,37 +5,16 @@ import java.nio.file.FileStore;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 
-//TODO implement
-public class MaldoFileStore extends FileStore {
+public abstract class MaldoFileStoreAbstract extends FileStore {
 
   @Override
   public String name() {
-    return null;
-  }
-
-  @Override
-  public String type() {
-    return null;
+    return "maldoFileStore";
   }
 
   @Override
   public boolean isReadOnly() {
     return false;
-  }
-
-  @Override
-  public long getTotalSpace() throws IOException {
-    return 0;
-  }
-
-  @Override
-  public long getUsableSpace() throws IOException {
-    return 0;
-  }
-
-  @Override
-  public long getUnallocatedSpace() throws IOException {
-    return 0;
   }
 
   @Override

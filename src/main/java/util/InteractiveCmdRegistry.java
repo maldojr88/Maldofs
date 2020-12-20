@@ -179,10 +179,6 @@ public class InteractiveCmdRegistry {
     if(filename.startsWith("/")){
       MaldoPath path = fs.getPath(filename);
       regularFile = regularFileOperator.getRegularFile(path);
-      //MaldoPath dirPath = path.getParent();
-      //dir = DirectoryRegistry.getDirectory(dirPath);
-      //regularFile = dir.getRegularFile(path);
-
     }else{
       MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
       dir = DirectoryRegistry.getDirectory(cwdPath);
