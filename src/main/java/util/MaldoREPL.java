@@ -16,6 +16,7 @@ public class MaldoREPL {
   private static final String PROMPT = "[MaldoFS] $ ";
   private static final String EXIT = "exit";
   private static final boolean DEBUG_MODE = true;
+  private static final List<String> HISTORY = new ArrayList<>();
   private static MaldoFileSystem fs;
   private static InteractiveCmdRegistry registry;
 
@@ -23,11 +24,11 @@ public class MaldoREPL {
   public static void main(String[] args) {
     fs = MaldoFS.newFileSystem();
     registry = new InteractiveCmdRegistry(fs);
-    initialize();
+    createUnixLikeDirs();
     startREPL();
   }
 
-  private static void initialize(){
+  private static void createUnixLikeDirs(){
     String[] cmds = {
         "mkdir /home/",
         "mkdir /home/maljos/",
@@ -49,20 +50,21 @@ public class MaldoREPL {
     String userInput = "";
 
     while (!userInput.equals(EXIT)) {
-      Scanner name = new Scanner(System.in);
+      Scanner keyboard = new Scanner(System.in);
       System.out.print(PROMPT);
-      userInput = name.nextLine();
+      userInput = keyboard.nextLine();
       if(userInput.equals("")){
         System.out.println("====> no command typed");
         continue;
       }
+      HISTORY.add(userInput);
       tokenizeAndExecute(userInput);
     }
   }
 
   private static void tokenizeAndExecute(String cmd) {
     List<String> tokens = new ArrayList<>();
-    Matcher m = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(cmd);//Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(cmd);
+    Matcher m = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(cmd);
     while (m.find()) {
       if (m.group(1) != null) {
         // Add double-quoted string without the quotes
