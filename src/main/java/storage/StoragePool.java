@@ -20,6 +20,10 @@ public class StoragePool {
     return POOL.get(path);
   }
 
+  public StorageContainer getContainer(MaldoPath path){
+    return POOL.get(path);
+  }
+
   public Iterable<FileStore> getAll() {
     Collection<StorageContainer> values = POOL.values();
     return (Collection<FileStore>) (List<? extends FileStore>) values;

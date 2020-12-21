@@ -6,7 +6,7 @@ import channel.MaldoOutputStream;
 import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
-import file.RegularFileOperator;
+import file.RegularFileUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -29,10 +29,13 @@ import java.util.Set;
 import path.MaldoPath;
 import path.PathRegistry;
 
+/**
+ * {@link FileSystemProvider} implementation for MaldoFS.
+ */
 public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private final MaldoFileSystem fs;
-  private final RegularFileOperator regularFileOperator = new RegularFileOperator();
+  private final RegularFileUtil regularFileUtil = new RegularFileUtil();
   private final PathRegistry pathRegistry;
 
   public MaldoFileSystemProvider(MaldoFileSystem fs){
@@ -44,8 +47,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
     return DirectoryRegistry.getDirectoryCreateIfNew(path);
   }
 
-  public RegularFileOperator getRegularFileOperator(){
-    return regularFileOperator;
+  public RegularFileUtil getRegularFileUtil(){
+    return regularFileUtil;
   }
 
   @Override
@@ -54,7 +57,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+  public FileSystem newFileSystem(URI uri, Map<String, ?> env) {
     throw new UnsupportedOperationException("Use MaldoFS.newFileSystem() to create FS");
   }
 
@@ -70,26 +73,25 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options,
-      FileAttribute<?>... attrs) throws IOException {
-    RegularFile file = regularFileOperator.createFile(MaldoPath.convert(path), options, attrs);
-    return regularFileOperator.createChannel(file);
+      FileAttribute<?>... attrs) {
+    RegularFile file = regularFileUtil.createFile(MaldoPath.convert(path), options, attrs);
+    return regularFileUtil.createChannel(file);
   }
 
   @Override
-  public OutputStream newOutputStream(Path path, OpenOption... options) throws IOException {
+  public OutputStream newOutputStream(Path path, OpenOption... options) {
     MaldoPath maldoPath = MaldoPath.convert(path);
-    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
+    RegularFile regularFile = regularFileUtil.getRegularFile(maldoPath);
     return new MaldoOutputStream(regularFile);
   }
 
   @Override
-  public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter)
-      throws IOException {
+  public DirectoryStream<Path> newDirectoryStream(Path dir, Filter<? super Path> filter) {
     return null;
   }
 
   @Override
-  public void createDirectory(Path dirPath, FileAttribute<?>... attrs) throws IOException {
+  public void createDirectory(Path dirPath, FileAttribute<?>... attrs) {
     DirectoryRegistry.getDirectoryCreateIfNew(MaldoPath.convert(dirPath));
   }
 
@@ -112,23 +114,23 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
+  //currently does NOT support recursive copies
   public void copy(Path src, Path tgt, CopyOption... options) throws IOException {
     MaldoPath sourcePath = MaldoPath.convert(src);
     MaldoPath targetPath = MaldoPath.convert(tgt);
     validateCopy(sourcePath, targetPath);
 
     if(sourcePath.isDirectory()){
-      //TODO - allow for recursive copy
       checkArgument(!DirectoryRegistry.directoryExists(targetPath), "target already exists");
       DirectoryRegistry.getDirectoryCreateIfNew(targetPath);
       Directory sourceDir = DirectoryRegistry.getDirectory(sourcePath);
       for(RegularFile file : sourceDir.getAllRegularFiles()){
         MaldoPath copyPath = fs.getPath(targetPath.getCanonical() + file.getPath().getRelativeName());
-        regularFileOperator.createCopy(copyPath, file);
+        regularFileUtil.createCopy(copyPath, file);
       }
     } else {
-      RegularFile sourceFile = regularFileOperator.getRegularFile(sourcePath);
-      regularFileOperator.createCopy(targetPath, sourceFile);
+      RegularFile sourceFile = regularFileUtil.getRegularFile(sourcePath);
+      regularFileUtil.createCopy(targetPath, sourceFile);
     }
   }
 
@@ -140,7 +142,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public void move(Path source, Path target, CopyOption... options) throws IOException {
+  public void move(Path source, Path target, CopyOption... options) {
     MaldoPath sourcePath = MaldoPath.convert(source);
     MaldoPath targetPath = MaldoPath.convert(target);
     validateMove(sourcePath,targetPath);
@@ -154,8 +156,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
     }else{
       Directory sourceDir = DirectoryRegistry.getFileDirectory(sourcePath);
       Directory targetDir = DirectoryRegistry.getDirectoryCreateIfNew(targetPath.getParent());
-      RegularFile sourceFile = regularFileOperator.getRegularFile(sourcePath);
-      regularFileOperator.resetFilePath(sourceFile, targetPath);
+      RegularFile sourceFile = regularFileUtil.getRegularFile(sourcePath);
+      regularFileUtil.resetFilePath(sourceFile, targetPath);
       targetDir.addFile(sourceFile);
       sourceDir.remove(sourcePath);
     }
@@ -168,23 +170,23 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public boolean isSameFile(Path path1, Path path2) throws IOException {
+  public boolean isSameFile(Path path1, Path path2) {
     //since MaldoPath's are singletons, must be the same reference
     return MaldoPath.convert(path1) == MaldoPath.convert(path2);
   }
 
   @Override
-  public boolean isHidden(Path path) throws IOException {
+  public boolean isHidden(Path path) {
     return false;
   }
 
   @Override
-  public FileStore getFileStore(Path path) throws IOException {
-    return null;
+  public FileStore getFileStore(Path path) {
+    return fs.getStoragePool().getContainer(MaldoPath.convert(path));
   }
 
   @Override
-  public void checkAccess(Path path, AccessMode... modes) throws IOException {
+  public void checkAccess(Path path, AccessMode... modes) {
 
   }
 
@@ -196,19 +198,17 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type,
-      LinkOption... options) throws IOException {
+      LinkOption... options) {
     return null;
   }
 
   @Override
-  public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options)
-      throws IOException {
+  public Map<String, Object> readAttributes(Path path, String attributes, LinkOption... options) {
     return null;
   }
 
   @Override
-  public void setAttribute(Path path, String attribute, Object value, LinkOption... options)
-      throws IOException {
+  public void setAttribute(Path path, String attribute, Object value, LinkOption... options) {
 
   }
 }

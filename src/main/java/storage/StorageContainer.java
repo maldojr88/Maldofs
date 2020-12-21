@@ -2,12 +2,14 @@ package storage;
 
 import core.MaldoFileStoreAbstract;
 import file.ContentType;
+import file.RegularFile;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * Container for storage of binary data
+ * Container for storage of binary data. Storage Containers are used to store the actual content of
+ * a {@link RegularFile}
  */
 public class StorageContainer extends MaldoFileStoreAbstract {
 

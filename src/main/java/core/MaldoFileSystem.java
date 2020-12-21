@@ -3,7 +3,7 @@ package core;
 import file.Directory;
 import file.DirectoryRegistry;
 import file.File;
-import file.RegularFileOperator;
+import file.RegularFileUtil;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
@@ -24,7 +24,7 @@ public class MaldoFileSystem extends FileSystem {
   private static Directory rootDir;
   private static Directory currentWorkingDir;
   private final MaldoFileSystemProvider provider;
-  private final RegularFileOperator regularFileOperator;
+  private final RegularFileUtil regularFileUtil;
   private final PathRegistry pathRegistry;
   private final StoragePool storagePool;
 
@@ -33,7 +33,7 @@ public class MaldoFileSystem extends FileSystem {
     rootDir = DirectoryRegistry.getDirectoryCreateIfNew(pathRegistry.createPath("/"));
     currentWorkingDir = rootDir;
     provider = new MaldoFileSystemProvider(this);
-    regularFileOperator = new RegularFileOperator();
+    regularFileUtil = new RegularFileUtil();
     storagePool = new StoragePool();
   }
 
@@ -69,7 +69,7 @@ public class MaldoFileSystem extends FileSystem {
     if(path.isDirectory()){
       return DirectoryRegistry.getDirectory(path);
     }else{
-      return regularFileOperator.getRegularFile(path);
+      return regularFileUtil.getRegularFile(path);
     }
   }
 

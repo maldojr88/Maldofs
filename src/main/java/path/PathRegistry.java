@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Registry of all the paths known to the FS and their corresponding operations
+ * Registry of all the paths known to the FS and their corresponding operations. Paths are stored
+ * as singletons, so there will only be 1 object corresponding to a Path. All Path related
+ * operations should leverage this class.
  */
 public class PathRegistry {
   private final Map<String, MaldoPath> registry = new HashMap<>();
@@ -28,17 +30,8 @@ public class PathRegistry {
     return registry.get(canonical);
   }
 
-  public MaldoPath get(String canonical){
-    checkArgument(registry.containsKey(canonical), "Path not found in registry");
-    return registry.get(canonical);
-  }
-
   public boolean exists(MaldoPath path){
     return registry.containsKey(path.getCanonical());
-  }
-
-  private void ensureIsDirectoryPath(MaldoPath path) {
-    checkArgument(path.isDirectory(),"Path must be a Directory");
   }
 
   public void remove(MaldoPath path) {

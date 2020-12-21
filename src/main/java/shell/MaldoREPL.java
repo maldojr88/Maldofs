@@ -1,4 +1,4 @@
-package util;
+package shell;
 
 import client.MaldoFS;
 import core.MaldoFileSystem;
@@ -22,7 +22,7 @@ public class MaldoREPL {
 
   public static void main(String[] args) {
     fs = MaldoFS.newFileSystem();
-    registry = new InteractiveCmdRegistry(fs, fs.getProvider().getRegularFileOperator());
+    registry = new InteractiveCmdRegistry(fs, fs.getProvider().getRegularFileUtil());
     createUnixLikeDirs();
     startREPL();
   }

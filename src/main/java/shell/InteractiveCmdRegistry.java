@@ -1,4 +1,4 @@
-package util;
+package shell;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -8,7 +8,7 @@ import file.Directory;
 import file.DirectoryRegistry;
 import file.File;
 import file.RegularFile;
-import file.RegularFileOperator;
+import file.RegularFileUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,19 +28,19 @@ import path.PathRegistry;
 public class InteractiveCmdRegistry {
 
   private static final List<String> HISTORY = new ArrayList<>();
-  public static final int DEFAULT_HISTORY_COUNT = 10;
+  private static final int DEFAULT_HISTORY_COUNT = 10;
   //https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
-  public static final String ANSI_BLUE = "\u001B[34m";
-  public static final String ANSI_RESET = "\u001B[0m";
+  private static final String ANSI_BLUE = "\u001B[34m";
+  private static final String ANSI_RESET = "\u001B[0m";
 
   private final MaldoFileSystem fs;
   private final PathRegistry pathRegistry;
-  private final RegularFileOperator regularFileOperator;
+  private final RegularFileUtil regularFileUtil;
 
-  public InteractiveCmdRegistry(MaldoFileSystem fs, RegularFileOperator regularFileOperator) {
+  public InteractiveCmdRegistry(MaldoFileSystem fs, RegularFileUtil regularFileUtil) {
     this.fs = fs;
     this.pathRegistry = fs.getPathRegistry();
-    this.regularFileOperator = regularFileOperator;
+    this.regularFileUtil = regularFileUtil;
   }
 
   public void executeCommand(String userInput, String identifier, List<String> args)
@@ -87,7 +87,7 @@ public class InteractiveCmdRegistry {
           .orElseThrow(() -> new IOException(source + " not found in current directory"));
     }
     Path unixPath = Paths.get(args.get(1));
-    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
+    RegularFile regularFile = regularFileUtil.getRegularFile(maldoPath);
     Files.write(unixPath, regularFile.readAll());
   }
 
@@ -110,7 +110,7 @@ public class InteractiveCmdRegistry {
 
     byte[] bytes = Files.readAllBytes(unixPath);
     Files.createFile(maldoPath);
-    RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
+    RegularFile regularFile = regularFileUtil.getRegularFile(maldoPath);
     regularFile.writeAll(bytes);
   }
 
@@ -132,7 +132,7 @@ public class InteractiveCmdRegistry {
        regularFile = maldoDir.getRegularFile(maldoPath);
       Files.write(unixPath, regularFile.readAll());
     }else{
-      regularFile = regularFileOperator.createFile(maldoPath, new HashSet<>());
+      regularFile = regularFileUtil.createFile(maldoPath, new HashSet<>());
     }
 
     openTextEditor(unixPath);
@@ -163,7 +163,7 @@ public class InteractiveCmdRegistry {
     RegularFile regularFile;
     if(filename.startsWith("/")){
       MaldoPath path = fs.getPath(filename);
-      regularFile = regularFileOperator.getRegularFile(path);
+      regularFile = regularFileUtil.getRegularFile(path);
     }else{
       MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
       dir = DirectoryRegistry.getDirectory(cwdPath);
@@ -350,6 +350,6 @@ public class InteractiveCmdRegistry {
 
   private void checkOS() {
     checkArgument(System.getProperty("os.name").equals("Mac OS X"),
-        "Text Editor is only supported on MacOS");
+        "Operation is currently only available on Mac OS X");
   }
 }

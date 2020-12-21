@@ -5,7 +5,7 @@ import core.MaldoFileSystem;
 import file.Directory;
 import file.DirectoryRegistry;
 import file.RegularFile;
-import file.RegularFileOperator;
+import file.RegularFileUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,8 +34,8 @@ public class Integration {
   public void basicCreateAndWrite() throws IOException {
     MaldoPath path = fs.getPath("/dummyFile.txt");//create in root as its guaranteed it will exist
     Files.createFile(path);
-    RegularFileOperator regularFileOperator = new RegularFileOperator();
-    RegularFile regularFile = regularFileOperator.getRegularFile(path);
+    RegularFileUtil regularFileUtil = new RegularFileUtil();
+    RegularFile regularFile = regularFileUtil.getRegularFile(path);
     MaldoPath regularFilePath = regularFile.getPath();
     assertThat(path == regularFilePath).isTrue();
 
@@ -56,9 +56,9 @@ public class Integration {
     MaldoPath file2Path = fs.getPath(testDirPath.getCanonical() + "file2");
     Files.copy(file1Path, file2Path);
 
-    RegularFileOperator regularFileOperator = new RegularFileOperator();
-    RegularFile file1 = regularFileOperator.getRegularFile(file1Path);
-    RegularFile file2 = regularFileOperator.getRegularFile(file2Path);
+    RegularFileUtil regularFileUtil = new RegularFileUtil();
+    RegularFile file1 = regularFileUtil.getRegularFile(file1Path);
+    RegularFile file2 = regularFileUtil.getRegularFile(file2Path);
 
     assertThat(Arrays.equals(file1.readAll(), file2.readAll())).isTrue();
 

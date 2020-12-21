@@ -12,7 +12,7 @@ import path.MaldoPath;
 /**
  * Facilitate operations on regular files
  */
-public class RegularFileOperator {
+public class RegularFileUtil {
 
   /* READ operations */
 
