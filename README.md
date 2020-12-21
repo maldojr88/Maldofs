@@ -75,10 +75,11 @@ nfs.conf
 
 Next Tasks
 ----
-- Different types of file storage (string, binary)
+- Use JFR
 - I/O
     - Finish implementing interfaces    
-- TODOs       
+- TODOs  
+- Read Jimfs implementation in detail     
 - Clean up code
 - Unit tests  
 

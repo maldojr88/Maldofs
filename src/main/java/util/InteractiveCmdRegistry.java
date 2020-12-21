@@ -23,7 +23,7 @@ import path.MaldoPath;
 import path.PathRegistry;
 
 /**
- * Shell commands available for Interactive Shell
+ * Interactive Shell to facilitate the FileSystem usage
  */
 public class InteractiveCmdRegistry {
 
@@ -68,13 +68,24 @@ public class InteractiveCmdRegistry {
     HISTORY.add(userInput);
   }
 
+  /*
+    Externals
+   */
+
   /**
    * Export a file from MaldoFS into the native OS
    */
   private void export(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "2 arguments expected");
     checkOS();
-    MaldoPath maldoPath = pathRegistry.getAbsolutePathExists(args.get(0));
+    String source = args.get(0);
+    MaldoPath maldoPath;
+    if(source.startsWith("/")) {
+      maldoPath = pathRegistry.getAbsolutePathExists(source);
+    }else{
+      maldoPath = getPathFromCwd(source)
+          .orElseThrow(() -> new IOException(source + " not found in current directory"));
+    }
     Path unixPath = Paths.get(args.get(1));
     RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
     Files.write(unixPath, regularFile.readAll());
@@ -86,19 +97,26 @@ public class InteractiveCmdRegistry {
   private void imp0rt(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "2 arguments expected");
     checkOS();
-    Path unixPath = Paths.get(args.get(0));
-    MaldoPath maldoPath = fs.getPath(args.get(1));
+    String source = args.get(0);
+    Path unixPath = Paths.get(source);
+    String target = args.get(1);
+    MaldoPath maldoPath;
+    if(target.equals(".")){
+      maldoPath = fs.getPath(fs.getCurrentWorkingDir().getPath().getCanonical()
+          + unixPath.getFileName().toString());
+    }else{
+      maldoPath = fs.getPath(target);
+    }
+
     byte[] bytes = Files.readAllBytes(unixPath);
     Files.createFile(maldoPath);
     RegularFile regularFile = regularFileOperator.getRegularFile(maldoPath);
     regularFile.writeAll(bytes);
   }
 
-  private void history(List<String> args) {
-    checkArgument(args.size() <= 1, "Only 1 argument expected");
-    int count = args.size() == 1 ? Integer.parseInt(args.get(0)) : DEFAULT_HISTORY_COUNT;
-    HISTORY.stream().skip(HISTORY.size() - count).forEach(System.out::println);
-  }
+  /*
+    File related operations
+   */
 
   /**
    * Cheap way to allow text editing
@@ -138,6 +156,24 @@ public class InteractiveCmdRegistry {
     System.out.print("\b".repeat(openMsg.length()));
   }
 
+  private void cat(List<String> args) {
+    checkArgument(args.size() == 1, "Too many arguments");
+    String filename = args.get(0);
+    Directory dir;
+    RegularFile regularFile;
+    if(filename.startsWith("/")){
+      MaldoPath path = fs.getPath(filename);
+      regularFile = regularFileOperator.getRegularFile(path);
+    }else{
+      MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
+      dir = DirectoryRegistry.getDirectory(cwdPath);
+      String canonical = cwdPath.getCanonical() + filename;
+      regularFile = dir.getRegularFile(canonical);
+    }
+    String contents = new String(regularFile.readAll());
+    System.out.println(contents);
+  }
+
   private void mv(List<String> args) throws IOException {
     checkArgument(args.size() == 2, "2 arguments expected (source, target)");
     String sourceStr = args.get(0);
@@ -170,31 +206,6 @@ public class InteractiveCmdRegistry {
     Files.copy(source, target);
   }
 
-  private void help() {
-    System.out.println("Available commands:");
-    for (InteractiveCmd command : InteractiveCmd.getValidCommands()) {
-      System.out.printf("\t%s%n", command.getIdentifier());
-    }
-  }
-
-  private void cat(List<String> args) {
-    checkArgument(args.size() == 1, "Too many arguments");
-    String filename = args.get(0);
-    Directory dir;
-    RegularFile regularFile;
-    if(filename.startsWith("/")){
-      MaldoPath path = fs.getPath(filename);
-      regularFile = regularFileOperator.getRegularFile(path);
-    }else{
-      MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
-      dir = DirectoryRegistry.getDirectory(cwdPath);
-      String canonical = cwdPath.getCanonical() + filename;
-      regularFile = dir.getRegularFile(canonical);
-    }
-    String contents = new String(regularFile.readAll());
-    System.out.println(contents);
-  }
-
   private void echo(List<String> args) throws IOException {
     checkArgument(args.size() <=4, "Too many arguments" );
     String strToEcho = args.get(0).replaceAll("'","");
@@ -217,9 +228,9 @@ public class InteractiveCmdRegistry {
     Files.createFile(newFilePath);
   }
 
-  private void goodbye() {
-    System.out.println("Goodbye!!!");
-  }
+  /*
+    Directory related
+   */
 
   private void pwd(List<String> args) {
     checkArgument(args.isEmpty(), "No arguments expected");
@@ -282,12 +293,10 @@ public class InteractiveCmdRegistry {
     if(desiredDir.equals("..")){
       desiredPath = fs.getCurrentWorkingDir().getPath().getParent();
     }else{
-      Map<String, MaldoPath> relativeNameToPath = fs.getCurrentWorkingDir().getRelativeNameToPath();
-      if(relativeNameToPath.containsKey(desiredDir)){
-        desiredPath = relativeNameToPath.get(desiredDir);//relative path
-      }else{
-        desiredPath = fs.getPath(pathRegistry.dirAppend(desiredDir));//absolute path
-      }
+      Optional<MaldoPath> pathFromCwd = getPathFromCwd(desiredDir);
+
+      desiredPath = pathFromCwd //relative path
+          .orElseGet(() -> fs.getPath(pathRegistry.dirAppend(desiredDir)));//absolute path
     }
 
     Directory dir = provider.getDirectory(desiredPath);
@@ -301,6 +310,43 @@ public class InteractiveCmdRegistry {
     Files.createDirectory(path);
   }
 
+  /*
+    Misc
+   */
+
+  private void history(List<String> args) {
+    checkArgument(args.size() <= 1, "Only 1 argument expected");
+    int count = args.size() == 1 ? Integer.parseInt(args.get(0)) : DEFAULT_HISTORY_COUNT;
+    HISTORY.stream().skip(HISTORY.size() - count).forEach(System.out::println);
+  }
+
+  private void help() {
+    System.out.println("Available commands:");
+    for (InteractiveCmd command : InteractiveCmd.getValidCommands()) {
+      System.out.printf("\t%s%n", command.getIdentifier());
+    }
+  }
+
+  private void goodbye() {
+    System.out.println("Goodbye!!!");
+  }
+
+  /*
+    Helper methods
+   */
+
+  /**
+   * Facilitate shell commands by allowing user to refer to a file in local dir. I.e:
+   * <pre>cd home - instead of cd /home/</pre>
+   */
+  private Optional<MaldoPath> getPathFromCwd(String source) {
+    Directory dir = DirectoryRegistry.getDirectory(fs.getCurrentWorkingDir().getPath());
+    Map<String, MaldoPath> relativeNameToPath = dir.getRelativeNameToPath();
+    if(relativeNameToPath.containsKey(source)){
+      return Optional.of(relativeNameToPath.get(source));
+    }else
+      return Optional.empty();
+  }
 
   private void checkOS() {
     checkArgument(System.getProperty("os.name").equals("Mac OS X"),
