@@ -308,8 +308,14 @@ public class InteractiveCmdRegistry {
   private void mkdir(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Invalid - expected 'mkdir <>'");
     String newDirName = args.get(0);
+    checkReservedDirNames(newDirName);
     MaldoPath path = pathRegistry.getAbsolutePathNotExists(newDirName, true);
     Files.createDirectory(path);
+  }
+
+  private void checkReservedDirNames(String newDirName){
+    checkArgument(!newDirName.equals("."), "Directory name must not be reserved");
+    checkArgument(!newDirName.equals(".."), "Directory name must not be reserved");
   }
 
   /*

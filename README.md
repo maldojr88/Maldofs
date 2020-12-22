@@ -73,6 +73,16 @@ nfs.conf
 [MaldoFS] $
 ``` 
 
+Incompleteness
+----
+As this is a learning project, certain components remain unimplemented and can be
+scoped for future enhancements. This applies to implementation of several interfaces, 
+abstract classes, and unit testing.
+ 
+The REPL emulates the Bash shell, implementing only the most basic
+features to interact reasonably with the FS. Some local directory "smartness" is implemented,
+however, some commands will require absolute paths. 
+
 Next Tasks
 ----
 - I/O

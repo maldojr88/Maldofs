@@ -99,8 +99,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   public void delete(Path path) throws IOException {
     MaldoPath targetPath = MaldoPath.convert(path);
     preventRootDeletion(targetPath);
-    Directory dir = DirectoryRegistry.getDirectory(targetPath.getParent());
-    dir.remove(targetPath);
+    Directory parentDir = DirectoryRegistry.getDirectory(targetPath.getParent());
+    parentDir.remove(targetPath);
 
     if(targetPath.isDirectory()){
       DirectoryRegistry.remove(targetPath);
@@ -109,12 +109,12 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private void preventRootDeletion(MaldoPath targetPath) throws IOException {
     if(targetPath.getCanonical().equals("/")){
-      throw new IOException("Can't delete root directory");
+      throw new IOException("Deleting root directory is not allowed");
     }
   }
 
   @Override
-  //currently does NOT support recursive copies
+  //TODO - Add support for recursive copies
   public void copy(Path src, Path tgt, CopyOption... options) throws IOException {
     MaldoPath sourcePath = MaldoPath.convert(src);
     MaldoPath targetPath = MaldoPath.convert(tgt);

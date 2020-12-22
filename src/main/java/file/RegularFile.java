@@ -6,7 +6,7 @@ import path.MaldoPath;
 import storage.StorageContainer;
 
 /**
- * A text file or a binary file.
+ * A text file or a binary file. Use {@link RegularFileUtil} to create new instances.
  */
 public class RegularFile extends File {
   private final ContentType contentType;
@@ -18,7 +18,7 @@ public class RegularFile extends File {
     content = path.getFileSystem().getStoragePool().createContainer(path,contentType);
   }
 
-  public static RegularFile create(ContentType type, MaldoPath path){
+  static RegularFile create(ContentType type, MaldoPath path){
     return new RegularFile(type,path);
   }
 
