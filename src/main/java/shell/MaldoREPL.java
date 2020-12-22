@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Run a REPL/Shell like interactive environment for working with the FileSystem
+ * Run a REPL/Shell to interact with the FileSystem interactively.
  */
 public class MaldoREPL {
 

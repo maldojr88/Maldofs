@@ -23,7 +23,8 @@ import path.MaldoPath;
 import path.PathRegistry;
 
 /**
- * Interactive Shell to facilitate the FileSystem usage
+ * Implementation of the commands available in the REPL. Generally these commands perform some
+ * {@link Path} manipulation followed by a call to a function in {@link Files}
  */
 public class InteractiveCmdRegistry {
 
@@ -69,7 +70,7 @@ public class InteractiveCmdRegistry {
   }
 
   /*
-    Externals
+    Externals - Interact with native FileSystem
    */
 
   /**
@@ -119,7 +120,8 @@ public class InteractiveCmdRegistry {
    */
 
   /**
-   * Cheap way to allow text editing
+   * Cheap way to allow text editing. Since the REPL is a console application, launching terminal
+   * dependent programs (like vim and others) causes problems.
    */
   private void vim(List<String> args) throws IOException, InterruptedException {
     checkArgument(args.size() == 1, "Only 1 expected arg");

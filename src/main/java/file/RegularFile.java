@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import path.MaldoPath;
 import storage.StorageContainer;
 
+/**
+ * A text file or a binary file.
+ */
 public class RegularFile extends File {
   private final ContentType contentType;
   private final StorageContainer content;
@@ -37,14 +40,14 @@ public class RegularFile extends File {
     this.metaData.path = newPath;
   }
 
-  public void append(ByteBuffer src) {
-    content.append(src.array());
-    this.metaData.lastModified = LocalDateTime.now();
-  }
-
   public void writeAll(byte[] arr){
     content.truncate();
     append(ByteBuffer.wrap(arr));
+  }
+
+  public void append(ByteBuffer src) {
+    content.append(src.array());
+    this.metaData.lastModified = LocalDateTime.now();
   }
 
   public byte[] readAll(){

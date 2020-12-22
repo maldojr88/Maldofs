@@ -8,6 +8,7 @@ import path.MaldoPath;
 
 /**
  * Registry of all directories in the FS as well as many of the core operations on directories.
+ * This class also serves as the Factory for creating {@link Directory}.
  */
 public class DirectoryRegistry {
   private static final Map<MaldoPath,Directory> registry = new HashMap<>();

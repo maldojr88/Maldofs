@@ -14,7 +14,7 @@ Tools to Learn
     - ~~Switch statement~~
 - ~~Google Java Code Style~~
 - ~~Error Prone~~ 
-- Java Flight Recorder (when ready)
+- ~~Java Flight Recorder (when ready)~~
 - Microbenchmarking (when ready)
 - ArchUnit
 
@@ -75,7 +75,6 @@ nfs.conf
 
 Next Tasks
 ----
-- Use JFR
 - I/O
     - Finish implementing interfaces    
 - TODOs  

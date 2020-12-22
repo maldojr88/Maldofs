@@ -3,9 +3,8 @@ package file;
 import path.MaldoPath;
 
 /**
- * Files are modeled similar to Unix filesystems.
- *
- * Logically, a file is a combination of 1) Metadata 2) Content
+ * Files are modeled similar to files in Unix filesystems. Everything storable on the filesystem
+ * is a subclass of a file.
  */
 public abstract class File {
   protected MetaData metaData;

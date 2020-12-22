@@ -10,7 +10,7 @@ import java.util.Set;
 import path.MaldoPath;
 
 /**
- * Facilitate operations on regular files
+ * Factory and Utility class for working with {@link RegularFile}
  */
 public class RegularFileUtil {
 

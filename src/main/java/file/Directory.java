@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import path.MaldoPath;
 
+/**
+ * A Directory in the Filesystem.
+ */
 public class Directory extends File {
   private final Map<MaldoPath, File> content;
 

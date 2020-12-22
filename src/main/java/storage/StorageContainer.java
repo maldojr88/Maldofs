@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 /**
  * Container for storage of binary data. Storage Containers are used to store the actual content of
- * a {@link RegularFile}
+ * a {@link RegularFile}.
  */
 public class StorageContainer extends MaldoFileStoreAbstract {
 
@@ -34,7 +34,7 @@ public class StorageContainer extends MaldoFileStoreAbstract {
    *   ByteBuffer b = ByteBuffer.wrap(k.getBytes());
    *   String v = newString(b.array());
    *   v.equals(k); //true
-   *   </pre>
+   *  </pre>
    */
 
   public void append(byte[] toAppend) {
@@ -88,7 +88,6 @@ public class StorageContainer extends MaldoFileStoreAbstract {
   @Override
   public long getUsableSpace() throws IOException {
     return 0;
-    //TODO
   }
 
   @Override

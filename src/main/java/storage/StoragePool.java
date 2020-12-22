@@ -9,8 +9,8 @@ import java.util.Map;
 import path.MaldoPath;
 
 /**
- * Collection of {@link StorageContainer} which effectively store all the data for the files
- * on the Filesystem
+ * Collection of {@link StorageContainer} which effectively store all the binary data for the files
+ * on the Filesystem.
  */
 public class StoragePool {
   private static final Map<MaldoPath, StorageContainer> POOL = new HashMap<>();

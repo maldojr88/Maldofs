@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link Path} for MaldoFS
+ */
 public class MaldoPath implements Path {
 
   private final MaldoFileSystem maldoFs;

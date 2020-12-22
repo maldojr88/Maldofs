@@ -10,7 +10,7 @@ import java.nio.channels.SeekableByteChannel;
 
 /**
  * Represents an open connection to a File that is capable of performing one or more distinct
- * I/O operations, for example reading or writing
+ * I/O operations, for example reading or writing.
  * @see Channel
  */
 public class MaldoFileChannel implements SeekableByteChannel {

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import path.MaldoPath;
 
 /**
- * Auxiliary information about a file
+ * Auxiliary information about a file.
  */
 public class MetaData {
   protected LocalDateTime createTime;

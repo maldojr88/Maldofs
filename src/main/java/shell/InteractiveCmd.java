@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Available commands for the REPL.
+ */
 public enum InteractiveCmd {
   CD("cd"),
   CP("cp"),
