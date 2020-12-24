@@ -2,6 +2,7 @@ package file;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import path.MaldoPath;
+import path.PathRegistry;
 
 /**
  * A Directory in the Filesystem.
@@ -20,7 +22,7 @@ public class Directory extends File {
 
   Directory(MaldoPath path) {
     super(path);
-    checkArgument(MaldoPath.convert(path).isDirectory(), "Path must be valid");
+    checkArgument(PathRegistry.convert(path).isDirectory(), "Path must be valid");
     content = new HashMap<>();
   }
 
@@ -60,7 +62,7 @@ public class Directory extends File {
   }
 
   public RegularFile getRegularFile(MaldoPath path){
-    MaldoPath regularPath = MaldoPath.convert(path);
+    MaldoPath regularPath = PathRegistry.convert(path);
     checkArgument(content.containsKey(path), "Directory does not contain " + regularPath.getCanonical());
     File file = content.get(path);
     return (RegularFile) file;
@@ -92,7 +94,7 @@ public class Directory extends File {
     return content.entrySet();
   }
 
-  public List<String> getPrintableDetailedContents(){
+  public List<String> getPrintableDetailedContents() throws IOException {
     List<String> ret = new ArrayList<>();
     for (Entry<MaldoPath, File> e : content.entrySet()) {
       MaldoPath path = e.getKey();
@@ -111,14 +113,14 @@ public class Directory extends File {
   /* WRITE operations */
 
   public void addFileIfNotExist(File file){
-    MaldoPath path = MaldoPath.convert(file.metaData.path);
+    MaldoPath path = PathRegistry.convert(file.metaData.path);
     if(!containsFile(path)){
       addFile(file);
     }
   }
 
   public void addFile(File file){
-    MaldoPath path = MaldoPath.convert(file.metaData.path);
+    MaldoPath path = PathRegistry.convert(file.metaData.path);
     String relativeName = path.getRelativeName();
     checkArgument(content.keySet().stream().map(MaldoPath::getRelativeName)
         .noneMatch(x -> x.equals(relativeName)),

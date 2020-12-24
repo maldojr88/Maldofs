@@ -21,8 +21,8 @@ import storage.StoragePool;
  * Core functionality of the filesystem bringing everything together
  */
 public class MaldoFileSystem extends FileSystem {
-  private static Directory rootDir;
-  private static Directory currentWorkingDir;
+  private Directory rootDir;
+  private Directory currentWorkingDir;
   private final MaldoFileSystemProvider provider;
   private final RegularFileUtil regularFileUtil;
   private final PathRegistry pathRegistry;
@@ -57,7 +57,7 @@ public class MaldoFileSystem extends FileSystem {
     currentWorkingDir = dir;
   }
 
-  public static MaldoPath getRootDir() {
+  public MaldoPath getRootDir() {
     return rootDir.getPath();
   }
 
@@ -65,7 +65,7 @@ public class MaldoFileSystem extends FileSystem {
     return pathRegistry.createPath(path);
   }
 
-  public File getFile(MaldoPath path){
+  public File getFile(MaldoPath path) throws IOException {
     if(path.isDirectory()){
       return DirectoryRegistry.getDirectory(path);
     }else{

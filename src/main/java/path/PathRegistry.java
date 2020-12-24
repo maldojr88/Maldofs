@@ -1,10 +1,13 @@
 package path;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import core.MaldoFileSystem;
 import file.Directory;
 import file.DirectoryRegistry;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,15 +22,27 @@ public class PathRegistry {
   private final MaldoFileSystem fs;
 
   public PathRegistry(MaldoFileSystem fs){
+    checkArgument(fs.getClass().equals(MaldoFileSystem.class),
+        "Path filesystem must be MaldoFileSystem");
     this.fs = fs;
   }
 
   public MaldoPath createPath(String canonical){
+    checkNotNull(canonical);
+    checkArgument(!canonical.isBlank() && !canonical.isEmpty(),
+        "InputPath must not be empty or blank");
+    checkArgument(canonical.startsWith("/"), "MaldoPaths must be absolute");
     if (!registry.containsKey(canonical)){
       registry.put(canonical, new MaldoPath(fs, canonical));
     }
 
     return registry.get(canonical);
+  }
+
+  public static MaldoPath convert(Path path){
+    checkNotNull(path);
+    checkArgument(path instanceof MaldoPath, "Path must be a MaldoPath");
+    return (MaldoPath) path;
   }
 
   public boolean exists(MaldoPath path){
@@ -36,14 +51,14 @@ public class PathRegistry {
 
   public void remove(MaldoPath path) {
     String canonical = path.getCanonical();
-    checkArgument(registry.containsKey(canonical), "Path to remove not found");
+    checkArgument(registry.containsKey(canonical), "Path to remove not found");//TODO - remove from here?
     registry.remove(canonical);
   }
 
   /**
    * Attempt to get an existing file, if it doesn't exist, get Path for a file that doesn't exist
    */
-  public MaldoPath getAbsolutePathSmart(String path){
+  public MaldoPath getAbsolutePathSmart(String path) throws IOException {
     MaldoPath existingFilePath = getAbsolutePathExists(path);
     if(existingFilePath != null){
       return existingFilePath;
@@ -55,7 +70,7 @@ public class PathRegistry {
   /**
    * Get the absolute path for a path which should exist
    */
-  public MaldoPath getAbsolutePathExists(String path){
+  public MaldoPath getAbsolutePathExists(String path) throws IOException {
     if(path.startsWith("/")){
       return fs.getPath(path);
     }else{

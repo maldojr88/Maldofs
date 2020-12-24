@@ -73,14 +73,14 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public SeekableByteChannel newByteChannel(Path path, Set<? extends OpenOption> options,
-      FileAttribute<?>... attrs) {
-    RegularFile file = regularFileUtil.createFile(MaldoPath.convert(path), options, attrs);
+      FileAttribute<?>... attrs) throws IOException {
+    RegularFile file = regularFileUtil.createFile(PathRegistry.convert(path), options, attrs);
     return regularFileUtil.createChannel(file);
   }
 
   @Override
-  public OutputStream newOutputStream(Path path, OpenOption... options) {
-    MaldoPath maldoPath = MaldoPath.convert(path);
+  public OutputStream newOutputStream(Path path, OpenOption... options) throws IOException {
+    MaldoPath maldoPath = PathRegistry.convert(path);
     RegularFile regularFile = regularFileUtil.getRegularFile(maldoPath);
     return new MaldoOutputStream(regularFile);
   }
@@ -92,12 +92,12 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public void createDirectory(Path dirPath, FileAttribute<?>... attrs) {
-    DirectoryRegistry.getDirectoryCreateIfNew(MaldoPath.convert(dirPath));
+    DirectoryRegistry.getDirectoryCreateIfNew(PathRegistry.convert(dirPath));
   }
 
   @Override
   public void delete(Path path) throws IOException {
-    MaldoPath targetPath = MaldoPath.convert(path);
+    MaldoPath targetPath = PathRegistry.convert(path);
     preventRootDeletion(targetPath);
     Directory parentDir = DirectoryRegistry.getDirectory(targetPath.getParent());
     parentDir.remove(targetPath);
@@ -116,8 +116,8 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   @Override
   //TODO - Add support for recursive copies
   public void copy(Path src, Path tgt, CopyOption... options) throws IOException {
-    MaldoPath sourcePath = MaldoPath.convert(src);
-    MaldoPath targetPath = MaldoPath.convert(tgt);
+    MaldoPath sourcePath = PathRegistry.convert(src);
+    MaldoPath targetPath = PathRegistry.convert(tgt);
     validateCopy(sourcePath, targetPath);
 
     if(sourcePath.isDirectory()){
@@ -136,15 +136,15 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   private void validateCopy(MaldoPath source, MaldoPath target) throws IOException {
     if((source.isDirectory() && !target.isDirectory())
-    || !source.isDirectory() && target.isDirectory()){
+    || (!source.isDirectory() && target.isDirectory())){
       throw new IOException("source and target must be the same type of file");
     }
   }
 
   @Override
-  public void move(Path source, Path target, CopyOption... options) {
-    MaldoPath sourcePath = MaldoPath.convert(source);
-    MaldoPath targetPath = MaldoPath.convert(target);
+  public void move(Path source, Path target, CopyOption... options) throws IOException {
+    MaldoPath sourcePath = PathRegistry.convert(source);
+    MaldoPath targetPath = PathRegistry.convert(target);
     validateMove(sourcePath,targetPath);
     if(sourcePath.isDirectory()){
       Directory sourceDir = DirectoryRegistry.getDirectory(sourcePath);
@@ -172,7 +172,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
   @Override
   public boolean isSameFile(Path path1, Path path2) {
     //since MaldoPath's are singletons, must be the same reference
-    return MaldoPath.convert(path1) == MaldoPath.convert(path2);
+    return PathRegistry.convert(path1) == PathRegistry.convert(path2);
   }
 
   @Override
@@ -182,7 +182,7 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
 
   @Override
   public FileStore getFileStore(Path path) {
-    return fs.getStoragePool().getContainer(MaldoPath.convert(path));
+    return fs.getStoragePool().getContainer(PathRegistry.convert(path));
   }
 
   @Override

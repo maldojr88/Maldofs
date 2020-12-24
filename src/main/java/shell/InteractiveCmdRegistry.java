@@ -158,7 +158,7 @@ public class InteractiveCmdRegistry {
     System.out.print("\b".repeat(openMsg.length()));
   }
 
-  private void cat(List<String> args) {
+  private void cat(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Too many arguments");
     String filename = args.get(0);
     Directory dir;
@@ -167,7 +167,7 @@ public class InteractiveCmdRegistry {
       MaldoPath path = fs.getPath(filename);
       regularFile = regularFileUtil.getRegularFile(path);
     }else{
-      MaldoPath cwdPath = MaldoPath.convert(fs.getCurrentWorkingDir().getPath());
+      MaldoPath cwdPath = PathRegistry.convert(fs.getCurrentWorkingDir().getPath());
       dir = DirectoryRegistry.getDirectory(cwdPath);
       String canonical = cwdPath.getCanonical() + filename;
       regularFile = dir.getRegularFile(canonical);
@@ -240,7 +240,7 @@ public class InteractiveCmdRegistry {
     System.out.println(path.getCanonical());
   }
 
-  private void ls(List<String> args) {
+  private void ls(List<String> args) throws IOException {
     checkArgument(args.size() <= 2, "Too many arguments");
     if(args.isEmpty()){
       lsStandard(fs.getCurrentWorkingDir());
@@ -269,7 +269,7 @@ public class InteractiveCmdRegistry {
     }
   }
 
-  private void lsDetailed(Directory dir) {
+  private void lsDetailed(Directory dir) throws IOException {
     List<String> detailedContents = dir.getPrintableDetailedContents();
     for(String fileDetail :detailedContents){
       System.out.println(fileDetail);
@@ -286,7 +286,7 @@ public class InteractiveCmdRegistry {
     return ret;
   }
 
-  private void cd(List<String> args) {
+  private void cd(List<String> args) throws IOException {
     checkArgument(args.size() == 1, "Exactly 1 argument expected");
     MaldoFileSystemProvider provider = (MaldoFileSystemProvider) fs.provider();
     String desiredDir = args.get(0);
@@ -347,7 +347,7 @@ public class InteractiveCmdRegistry {
    * Facilitate shell commands by allowing user to refer to a file in local dir. I.e:
    * <pre>cd home - instead of cd /home/</pre>
    */
-  private Optional<MaldoPath> getPathFromCwd(String source) {
+  private Optional<MaldoPath> getPathFromCwd(String source) throws IOException {
     Directory dir = DirectoryRegistry.getDirectory(fs.getCurrentWorkingDir().getPath());
     Map<String, MaldoPath> relativeNameToPath = dir.getRelativeNameToPath();
     if(relativeNameToPath.containsKey(source)){

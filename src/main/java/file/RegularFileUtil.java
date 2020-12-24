@@ -1,6 +1,7 @@
 package file;
 
 import channel.MaldoFileChannel;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.OpenOption;
@@ -16,7 +17,7 @@ public class RegularFileUtil {
 
   /* READ operations */
 
-  public RegularFile getRegularFile(MaldoPath path){
+  public RegularFile getRegularFile(MaldoPath path) throws IOException {
     Directory directory = DirectoryRegistry.getFileDirectory(path);
     return directory.getRegularFile(path);
   }
@@ -24,14 +25,14 @@ public class RegularFileUtil {
   /* WRITE operations */
 
   public RegularFile createFile(MaldoPath path, Set<? extends OpenOption> options,
-      FileAttribute<?>... attrs) {
+      FileAttribute<?>... attrs) throws IOException {
     Directory directory = DirectoryRegistry.getFileDirectory(path);
     RegularFile file = RegularFile.create(ContentType.STRING, path);
     directory.addFile(file);
     return file;
   }
 
-  public void createCopy(MaldoPath target, RegularFile sourceFile) {
+  public void createCopy(MaldoPath target, RegularFile sourceFile) throws IOException {
     RegularFile copy = createFile(target, new HashSet<>());
     copy.append(ByteBuffer.wrap(sourceFile.readAll()));
   }

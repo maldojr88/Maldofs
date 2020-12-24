@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import core.MaldoFileSystem;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent.Kind;
@@ -14,7 +13,6 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -27,24 +25,17 @@ public class MaldoPath implements Path {
   private boolean isRoot;
   private final String canonical;
   private List<String> splits;
-  private List<MaldoPath> pathChain = new ArrayList<>();
+  private List<MaldoPath> pathChain;
 
    MaldoPath(MaldoFileSystem fs, String canonical){
-    validate(fs, canonical);
     this.canonical = canonical;
     this.isDir = canonical.endsWith("/");
     this.maldoFs = fs;
+    splitCanonical(canonical);
     constructPathChain();
   }
 
   /* MaldoPath specific methods/functions */
-
-  public static MaldoPath convert(Path path){
-    Objects.requireNonNull(path);
-    validateFileSystem(path.getFileSystem());
-    checkArgument(path instanceof MaldoPath, "Path must be a MaldoPath");
-    return (MaldoPath) path;
-  }
 
   public String getCanonical() {
     return canonical;
@@ -98,7 +89,7 @@ public class MaldoPath implements Path {
 
   @Override
   public Path getRoot() {
-    return new MaldoPath(maldoFs, "/");
+    return new MaldoPath(maldoFs, "/");//TODO fix!! - should not create new instance
   }
 
   @Override
@@ -107,7 +98,7 @@ public class MaldoPath implements Path {
       return null;
     }
 
-    return new MaldoPath(this.maldoFs, splits.get(splits.size()-1));
+    return new MaldoPath(this.maldoFs, splits.get(splits.size()-1));//TODO - shouldnt create new instance?
   }
 
   @Override
@@ -117,7 +108,6 @@ public class MaldoPath implements Path {
     }
 
     return pathChain.get(pathChain.size()-1);
-
   }
 
   @Override
@@ -127,22 +117,23 @@ public class MaldoPath implements Path {
 
   @Override
   public Path getName(int index) {
-    return new MaldoPath(this.maldoFs, splits.get(index));
+    return new MaldoPath(this.maldoFs, splits.get(index));//TODO - should not create new instance
   }
 
   @Override
   public Path subpath(int beginIndex, int endIndex) {
+    //TODO - should not create new instance
     return new MaldoPath(this.maldoFs, String.join("/", splits.subList(beginIndex,endIndex)));
   }
 
   @Override
   public boolean startsWith(Path other) {
-    return beginsWith(convert(other));
+    return beginsWith(PathRegistry.convert(other));
   }
 
   @Override
   public boolean endsWith(Path other) {
-    return finishesWith(convert(other));
+    return finishesWith(PathRegistry.convert(other));
   }
 
   @Override
@@ -190,15 +181,7 @@ public class MaldoPath implements Path {
     return splits;
   }
 
-  private void validate(FileSystem fs, String inputPath){
-    validateFileSystem(fs);
-    validateInputPath(inputPath);
-  }
-
-  private void validateInputPath(String inputPath) {
-    checkArgument(!inputPath.isBlank() && !inputPath.isEmpty(),
-        "InputPath must not be empty or blank");
-    checkArgument(inputPath.startsWith("/"), "MaldoPaths must be absolute");
+  private void splitCanonical(String inputPath){
     isRoot = inputPath.length() == 1 && inputPath.equals("/");
 
     if(isRoot){
@@ -210,20 +193,15 @@ public class MaldoPath implements Path {
     splits = tempSplit.subList(1, tempSplit.size());//first one will always be empty
 
     boolean valid = splits.stream().noneMatch(x -> x.equals(""));
-    checkArgument(valid, "Invalid Path{" + inputPath + "}");
-  }
-
-  private static void validateFileSystem(FileSystem fs){
-    checkArgument(fs.getClass().equals(MaldoFileSystem.class),
-        "Path filesystem must be MaldoFileSystem");
+    checkArgument(valid, "Invalid Path{" + inputPath + "}");//TODO - shouldn't use this here
   }
 
   private void constructPathChain() {
+    pathChain = new ArrayList<>();
     if (!isRoot) {
       StringBuilder sb = new StringBuilder();
       sb.append("/");
-      pathChain = new ArrayList<>();
-      pathChain.add(MaldoFileSystem.getRootDir());
+      pathChain.add(maldoFs.getRootDir());
       for (String split : splits.stream().limit(splits.size() - 1).collect(Collectors.toList())) {
         sb.append(split).append("/");
         pathChain.add(maldoFs.getPathRegistry().createPath(sb.toString()));

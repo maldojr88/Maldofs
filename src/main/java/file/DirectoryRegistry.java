@@ -1,14 +1,19 @@
 package file;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 import path.MaldoPath;
+import path.PathRegistry;
 
 /**
- * Registry of all directories in the FS as well as many of the core operations on directories.
- * This class also serves as the Factory for creating {@link Directory}.
+ * Registry of all directories in the FS. This class also serves as the Factory for creating
+ * {@link Directory}.
  */
 public class DirectoryRegistry {
   private static final Map<MaldoPath,Directory> registry = new HashMap<>();
@@ -16,6 +21,7 @@ public class DirectoryRegistry {
   private DirectoryRegistry(){}
 
   public static Directory getDirectoryCreateIfNew(MaldoPath path){
+    checkNotNull(path);
     if(registry.containsKey(path)){
       return registry.get(path);
     }
@@ -28,20 +34,26 @@ public class DirectoryRegistry {
     return registry.containsKey(path);
   }
 
-  public static Directory getDirectory(MaldoPath path){
-    checkArgument(registry.containsKey(path), "Directory does not exist");
+  public static Directory getDirectory(MaldoPath path) throws IOException {
+    checkContains(path);
     return registry.get(path);
   }
 
-  public static Directory getFileDirectory(MaldoPath path){
+  public static Directory getFileDirectory(MaldoPath path) throws IOException {
     checkArgument(!path.isDirectory(), "Path must be a File");
-    MaldoPath dirPath = MaldoPath.convert(path.getParent());
+    MaldoPath dirPath = PathRegistry.convert(path.getParent());
     return getDirectory(dirPath);
   }
 
-  public static void remove(MaldoPath path) {
-    checkArgument(registry.containsKey(path), "Path to remove does not exist");
+  public static void remove(MaldoPath path) throws IOException {
+    checkContains(path);
     registry.remove(path);
+  }
+
+  private static void checkContains(MaldoPath path) throws NoSuchFileException {
+    if(!registry.containsKey(path)){
+      throw new NoSuchFileException(path.getCanonical());
+    }
   }
 
   private static void createParentDirectoriesIfNotExist(MaldoPath maldoPath) {
