@@ -301,7 +301,7 @@ public class InteractiveCmdRegistry {
           .orElseGet(() -> fs.getPath(pathRegistry.dirAppend(desiredDir)));//absolute path
     }
 
-    Directory dir = provider.getDirectory(desiredPath);
+    Directory dir = DirectoryRegistry.getDirectoryCreateIfNew(desiredPath);
     fs.setCurrentWorkingDir(dir);
   }
 

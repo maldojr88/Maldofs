@@ -98,7 +98,7 @@ public class Directory extends File {
     List<String> ret = new ArrayList<>();
     for (Entry<MaldoPath, File> e : content.entrySet()) {
       MaldoPath path = e.getKey();
-      File file = path.getFileSystem().getFile(path);
+      File file = path.getFileSystem().getProvider().getFile(path);
       DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM dd hh:mm");
       String str = String.format("%s root root %d %s %s",
           "drwxr-xr-x ",

@@ -2,8 +2,6 @@ package core;
 
 import file.Directory;
 import file.DirectoryRegistry;
-import file.File;
-import file.RegularFileUtil;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
@@ -21,10 +19,9 @@ import storage.StoragePool;
  * Core functionality of the filesystem bringing everything together
  */
 public class MaldoFileSystem extends FileSystem {
-  private Directory rootDir;
   private Directory currentWorkingDir;
+  private final Directory rootDir;
   private final MaldoFileSystemProvider provider;
-  private final RegularFileUtil regularFileUtil;
   private final PathRegistry pathRegistry;
   private final StoragePool storagePool;
 
@@ -33,7 +30,6 @@ public class MaldoFileSystem extends FileSystem {
     rootDir = DirectoryRegistry.getDirectoryCreateIfNew(pathRegistry.createPath("/"));
     currentWorkingDir = rootDir;
     provider = new MaldoFileSystemProvider(this);
-    regularFileUtil = new RegularFileUtil();
     storagePool = new StoragePool();
   }
 
@@ -63,14 +59,6 @@ public class MaldoFileSystem extends FileSystem {
 
   public MaldoPath getPath(String path){
     return pathRegistry.createPath(path);
-  }
-
-  public File getFile(MaldoPath path) throws IOException {
-    if(path.isDirectory()){
-      return DirectoryRegistry.getDirectory(path);
-    }else{
-      return regularFileUtil.getRegularFile(path);
-    }
   }
 
   @Override

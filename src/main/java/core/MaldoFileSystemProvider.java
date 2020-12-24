@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.*;
 import channel.MaldoOutputStream;
 import file.Directory;
 import file.DirectoryRegistry;
+import file.File;
 import file.RegularFile;
 import file.RegularFileUtil;
 import java.io.IOException;
@@ -43,10 +44,14 @@ public class MaldoFileSystemProvider extends FileSystemProvider {
     this.pathRegistry = fs.getPathRegistry();
   }
 
-  public Directory getDirectory(MaldoPath path){
-    return DirectoryRegistry.getDirectoryCreateIfNew(path);
+  public File getFile(MaldoPath path) throws IOException {
+    if(path.isDirectory()){
+      return DirectoryRegistry.getDirectory(path);
+    }else{
+      return regularFileUtil.getRegularFile(path);
+    }
   }
-
+  
   public RegularFileUtil getRegularFileUtil(){
     return regularFileUtil;
   }
