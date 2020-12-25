@@ -23,7 +23,7 @@ Tools to Learn
 
 Libraries to Learn
 ---------
-- Guava
+- ~~Guava~~
 - ~~Truth~~
 
 

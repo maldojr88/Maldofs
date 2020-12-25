@@ -10,16 +10,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import path.MaldoPath;
 import path.PathRegistry;
 
-public class Integration {
+class Integration {
   private static final MaldoFileSystem fs = MaldoFS.newFileSystem();
   private static final PathRegistry pathRegistry = fs.getPathRegistry();
 
   @Test
-  public void basicCreateDirectory() throws IOException {
+  void basicCreateDirectory() throws IOException {
     Path first = fs.getPath("/a/b/c/");
     Files.createDirectory(first);
     Path second = fs.getPath("/a/b/d/");
@@ -31,7 +31,7 @@ public class Integration {
   }
 
   @Test
-  public void basicCreateAndWrite() throws IOException {
+  void basicCreateAndWrite() throws IOException {
     MaldoPath path = fs.getPath("/dummyFile.txt");//create in root as its guaranteed it will exist
     Files.createFile(path);
     RegularFileUtil regularFileUtil = new RegularFileUtil();
@@ -45,7 +45,7 @@ public class Integration {
   }
 
   @Test
-  public void copy() throws IOException {
+  void copy() throws IOException {
     MaldoPath testDirPath = fs.getPath("/testCopy/");
     Files.createDirectory(testDirPath);
 
@@ -72,7 +72,7 @@ public class Integration {
   }
 
   @Test
-  public void remove() throws IOException {
+  void remove() throws IOException {
     MaldoPath dirToRemove = fs.getPath("/toDelete/");
     Files.createDirectory(dirToRemove);
     MaldoPath filePath = fs.getPath("/toDelete/file.txt");
@@ -87,7 +87,7 @@ public class Integration {
   }
 
   @Test
-  public void move() throws IOException {
+  void move() throws IOException {
     Directory root = DirectoryRegistry.getDirectory(fs.getPath("/"));
     MaldoPath filePath = fs.getPath("/toMove");
     Files.createFile(filePath);
