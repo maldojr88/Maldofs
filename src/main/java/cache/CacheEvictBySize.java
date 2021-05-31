@@ -20,14 +20,13 @@ public class CacheEvictBySize extends Cache {
 
   public CacheEvictBySize(Function<MaldoPath, Directory> loader, int evictSize){
     this.loader = loader;
-    this.store = new LRUStore<>(evictSize);
+    this.store = LRUStore.newSizeBased(evictSize);
   }
 
   @Override
   public Directory getPutIfAbsent(MaldoPath key) {
     if(!store.containsKey(key)){
-      Directory value = loader.apply(key);
-      put(key, value);
+      put(key, loader.apply(key));
     }
     return store.get(key);
   }
